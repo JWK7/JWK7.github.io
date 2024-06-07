@@ -1,0 +1,78 @@
+*{
+    margin: 0;
+    text-decoration: none;
+}
+
+#header{
+    width: 100%;
+    display: block;
+    height: 60px;
+    background-color: white;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif ;
+    color:  #1a1a1a; 
+    border: 0.1px solid #a1a1a1;
+}
+
+.inner-header{
+    float: left;
+    width: 1%;
+    display: block;
+    height: 100%;
+}
+
+#name{
+    display: table;
+    height: 100%;
+}
+
+#name a{
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 0px 20px;
+    color:  #1a1a1a; 
+    font-size: 25px;
+}
+
+#name a span{
+    font-weight: 10;
+}
+
+#navigation{
+    float: right;
+    height: 100%;
+}
+#navigation a{
+    display: table;
+    height: 100%;
+    float: left;
+    padding: 0px 20px;
+}
+
+#navigation a li{
+    display: table-cell;
+    vertical-align: middle;
+    color:  #1a1a1a; 
+}
+
+#aboutme{
+    width: 100%;
+    display: table;
+    height: 400px;
+    background-color: gray;
+}
+
+#photo{
+    display: table-cell;
+    width: 50%;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+#introduction{
+    display: table-cell;
+    width: 50%;
+    vertical-align: middle;   
+}
