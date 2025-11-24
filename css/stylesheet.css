@@ -55,14 +55,18 @@
     color:  #1a1a1a; 
 }
 
-#aboutme{
+#aboutme {
     width: 100%;
-    display: table;
-    height: 400px;
+    display: flex;
+    align-items: center;      /* vertically center contents */
+    justify-content: center;  /* center everything nicely */
     background-color: gray;
+    padding: 40px 0;
 }
 
+
 #photo{
+    
     display: table-cell;
     width: 50%;
     vertical-align: middle;
@@ -71,8 +75,20 @@
     text-align: center;
 }
 
-#introduction{
+.profile-pic {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;     /* makes it a circle */
+    object-fit: cover;      /* crops nicely */
+    display: block;         /* avoids inline-image spacing issues */
+    margin: 0 auto;         /* centers image inside #photo */
+}
+
+
+#introduction {
     display: table-cell;
     width: 50%;
     vertical-align: middle;   
+    padding-right: 80px;   /* add spacing from right edge */
+    padding-left: 40px;    /* add spacing from the photo */
 }
