@@ -198,9 +198,32 @@
 .publications-container a:hover {
     text-decoration: underline;
 }
-/* .publications-container h1 {
-    margin-top: 40px;
-    font-size: 24px;
-    color: #333; */
-/* } */
+
+
+#projects-container {
+    width: 70%;
+    margin: 50px auto;
+    font-family: sans-serif;
+}
+
+.project {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 25px;
+    border-radius: 10px;
+}
+
+.project h2 {
+    margin-top: 0;
+}
+
+.project-link {
+    color: #0072ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.project-link:hover {
+    text-decoration: underline;
+}
 
