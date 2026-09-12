@@ -1,0 +1,25 @@
+\begin{table*}
+\centering
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{\textbf{Hopper}} & \multicolumn{3}{c}{\textbf{Walker}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Method & \makecell{Task Return $\uparrow$} & \makecell{Fwd.\ Vel.\ (m/s)} & \makecell{Height (m)}
+       & \makecell{Task Return $\uparrow$} & \makecell{Fwd.\ Vel.\ (m/s)} & \makecell{Height (m)} \\
+\midrule
+Ours                & $\mathbf{0.39 \pm 0.38}$  & $1.48 \pm 0.33$   & $0.73 \pm 0.15$   & $\mathbf{0.61 \pm 0.03}$      & $4.52 \pm 0.22$   & $1.19 \pm 0.04$ \\
+Fwd.\ Vel.\ only    & $0.00 \pm 0.00$           & $0.77 \pm 0.17$   & $0.33 \pm 0.03$   & $0.10 \pm 0.04$               & $4.41 \pm 0.22$   & $0.47 \pm 0.10$ \\
+ICM$^\dagger$       & $0.00 \pm 0.00$           & $1.19 \pm 0.03$   & $0.28 \pm 0.02$   & $0.06 \pm 0.01$               & $4.10 \pm 0.17$   & $0.35 \pm 0.03$   \\
+APT$^\dagger$       & $0.00 \pm 0.00$           & $1.36 \pm 0.06$   & $0.29 \pm 0.04$   & $0.10 \pm 0.01$               & $4.63 \pm 0.18$   & $0.47 \pm 0.04$   \\
+DIAYN$^\dagger$     & $0.00 \pm 0.00$           & $1.36 \pm 0.05$   & $0.28 \pm 0.02$   & $0.06 \pm 0.01$               & $2.00 \pm 0.21$   & $0.43 \pm 0.04$   \\
+SMM$^\dagger$       & $0.00 \pm 0.00$           & $1.66 \pm 0.06$   & $0.22 \pm 0.02$   & $0.11 \pm 0.02$               & $4.26 \pm 0.16$   & $0.51 \pm 0.04$   \\
+\midrule
+Full reward \textit{(oracle)} & $0.52 \pm 0.12$ & $1.04 \pm 0.23$   & $0.79 \pm 0.09$ & $0.78 \pm 0.04$ & $6.07 \pm 0.33$ & $1.13 \pm 0.02$ \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Reward simplification on Hopper and Walker.} Mean and standard deviation calculated over $10$ evaluations of the trained policies. Ours pre-trains with F-CIP alone, then fine-tunes on the forward-velocity reward while continuing to maximize F-CIP (Algorithm~\ref{alg:cip_adaptation}). Task return is the comparison metric and is measured with the full hand-designed reward; \textbf{bold} marks the best performance among the methods. Forward velocity and torso height are reported as diagnostics of the emergent gait. 
+% Ours recovers upright locomotion on both tasks, whereas all other methods collapse to scooting with near-zero task return.
+% ; ours reaches $75\%$ (Hopper) and $77\%$ (Walker) of the oracle's return. 
+Each pretraining baseline ($\dagger$) is run in its intended URLB (DDPG) configuration: the intrinsic objective is maximized during pretraining and then replaced by the velocity reward during fine-tuning. In contrast, Ours continues to maximize F-CIP throughout fine-tuning. Ours, Fwd.\ Vel.\ only, and Full reward \textit{(oracle)} are trained with the same PPO implementation, so the Fwd.\ Vel.\ only row serves as an algorithm-matched control.}
+\label{tab:reward-simplification}
+\end{table*}

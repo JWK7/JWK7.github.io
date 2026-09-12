@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bellman Meets Kolmogorov</title>
+<meta name="description" content="Unsupervised Reinforcement Learning Through Mastering Chaos. Forward CIP: an objective derived from Kolmogorov-Sinai entropy that is directly compatible with existing RL algorithms.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+         macros: { fx: "f_{x_t}", ol: "{\\mathrm{ol}}", ks: "{\\mathrm{ks}}", I: "\\mathbf{I}", sg: "\\mathrm{sg}" } },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<style>
+:root {
+  --bg: #F4F6F9;
+  --bg-raised: #FFFFFF;
+  --bg-sunken: #E9EDF3;
+  --ink: #131B29;
+  --ink-2: #3E4756;
+  --ink-3: #6B7583;
+  --line: #D5DBE4;
+  --line-strong: #B9C2CE;
+  --accent: #0E7C86;
+  --accent-ink: #0A5E66;
+  --accent-soft: #D9EEF0;
+  --baseline: #6B7583;
+  --baseline-soft: #E3E7EC;
+  --amber: #B7791F;
+  --amber-soft: #F7EEDC;
+  --memory: #2E7D5B;
+  --memory-soft: #DDF0E6;
+  --reward: #6B4FA0;
+  --reward-soft: #EAE3F5;
+  --video-bg: #1B2A3F;
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --measure: 68ch;
+  --wide: 1100px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1622;
+    --bg-raised: #17202E;
+    --bg-sunken: #0A0F18;
+    --ink: #E8EDF3;
+    --ink-2: #B8C1CD;
+    --ink-3: #8592A2;
+    --line: #2A3546;
+    --line-strong: #3B4859;
+    --accent: #3FB7C1;
+    --accent-ink: #7BD3DA;
+    --accent-soft: #123A40;
+    --baseline: #8592A2;
+    --baseline-soft: #1F2937;
+    --amber: #D9A24A;
+    --amber-soft: #2E2612;
+    --memory: #5CC292;
+    --memory-soft: #14301F;
+    --reward: #A88BE0;
+    --reward-soft: #241C3A;
+    --video-bg: #0A0F18;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1622;
+  --bg-raised: #17202E;
+  --bg-sunken: #0A0F18;
+  --ink: #E8EDF3;
+  --ink-2: #B8C1CD;
+  --ink-3: #8592A2;
+  --line: #2A3546;
+  --line-strong: #3B4859;
+  --accent: #3FB7C1;
+  --accent-ink: #7BD3DA;
+  --accent-soft: #123A40;
+  --baseline: #8592A2;
+  --baseline-soft: #1F2937;
+  --amber: #D9A24A;
+  --amber-soft: #2E2612;
+  --memory: #5CC292;
+  --memory-soft: #14301F;
+  --reward: #A88BE0;
+  --reward-soft: #241C3A;
+  --video-bg: #0A0F18;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+}
+a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+a:hover { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+img, video { max-width: 100%; height: auto; display: block; }
+[hidden] { display: none !important; }
+mjx-container { overflow-x: auto; overflow-y: hidden; }
+mjx-container[display="true"] { margin: 0.6em 0 !important; }
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.1; margin: 0; text-wrap: balance; font-optical-sizing: auto; }
+p { margin: 0; }
+p + p { margin-top: 1em; }
+strong { font-weight: 600; }
+
+.wrap { width: min(100% - 2.5rem, var(--wide)); margin-inline: auto; }
+.measure { max-width: var(--measure); }
+
+/* ---------- Header / hero ---------- */
+.site-head {
+  background: #0B111B;
+  border-bottom: 1px solid #1C2636;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8592A2;
+}
+.site-head .wrap { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 0.8rem; flex-wrap: wrap; }
+.site-head nav { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+.site-head nav a { color: #8592A2; text-decoration: none; }
+.site-head nav a:hover { color: #3FB7C1; }
+
+/* The hero commits to the simulator's night sky in both themes. */
+.hero {
+  position: relative; overflow: hidden;
+  background: #0B111B; color: #E8EDF3;
+  padding-block: clamp(1.5rem, 4vw, 3rem) clamp(2.5rem, 6vw, 5rem);
+  text-align: center;
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 50% 38%, rgba(63,183,193,0.28), transparent 70%),
+    radial-gradient(40% 30% at 50% 90%, rgba(217,162,74,0.12), transparent 70%);
+}
+.hero > * { position: relative; }
+.hero-video {
+  width: min(100%, 980px); margin-inline: auto;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 30px 80px rgba(0,0,0,0.6), 0 0 120px rgba(63,183,193,0.25);
+  background: #1B2A3F;
+}
+.hero-video video { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; }
+.switch { display: inline-flex; gap: 0.25rem; padding: 0.25rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid #1C2636; margin-bottom: 1rem; }
+.switch button {
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+  background: transparent; color: #8592A2; border: 0; border-radius: 999px; padding: 0.45rem 1.1rem; cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.switch button[aria-selected="true"] { background: #3FB7C1; color: #06171A; font-weight: 600; }
+.switch button:hover:not([aria-selected="true"]) { color: #E8EDF3; }
+.hero-cap { max-width: 78ch; margin: 1.1rem auto 0; font-size: 0.98rem; line-height: 1.55; color: #B8C1CD; }
+.hero-video { position: relative; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.hero .eyebrow { color: #3FB7C1; margin-top: clamp(2rem, 4vw, 3rem); }
+.hero h1 { font-size: clamp(2.6rem, 7vw, 5.6rem); font-weight: 700; letter-spacing: -0.03em; margin-top: 0.6rem; line-height: 0.98; }
+.hero h1 .sub { display: block; font-size: 0.36em; font-weight: 500; letter-spacing: -0.005em; color: #B8C1CD; margin-top: 0.9rem; line-height: 1.25; }
+.authors { margin-top: 1.5rem; font-size: 1.05rem; line-height: 1.5; color: #E8EDF3; }
+.authors sup { font-family: var(--font-mono); font-size: 0.65em; color: #8592A2; margin-left: 0.05em; }
+.affil { margin-top: 0.4rem; color: #8592A2; font-size: 0.9rem; line-height: 1.5; }
+.affil sup { font-family: var(--font-mono); font-size: 0.7em; margin-right: 0.15em; }
+.affil a { color: #7BD3DA; }
+.cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; margin-top: 1.6rem; }
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.02em;
+  padding: 0.65rem 1.1rem; border-radius: 999px; text-decoration: none;
+  border: 1px solid #3B4859; color: #E8EDF3; background: rgba(255,255,255,0.04);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.btn:hover { border-color: #3FB7C1; color: #7BD3DA; }
+.btn.primary { background: #3FB7C1; border-color: #3FB7C1; color: #06171A; font-weight: 600; }
+.btn.primary:hover { background: #7BD3DA; border-color: #7BD3DA; color: #06171A; }
+.btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+.clip { position: relative; background: var(--video-bg); border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+.clip video { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
+
+/* ---------- Sections ---------- */
+section { padding-block: clamp(2.5rem, 5vw, 4.5rem); border-top: 1px solid var(--line); }
+section.tight { padding-block: clamp(2rem, 4vw, 3rem); }
+.sec-head { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 1rem 2rem; align-items: baseline; margin-bottom: 1.75rem; }
+.sec-head .eyebrow { color: var(--ink-3); }
+.sec-head h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 600; letter-spacing: -0.015em; }
+.sec-body { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 1rem 2rem; }
+.sec-body > .lead { grid-column: 2; }
+.sec-body > .full { grid-column: 1 / -1; }
+h3 { font-size: 1.2rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.6rem; }
+h3:first-child { margin-top: 0; }
+.abstract { font-size: 1.15rem; line-height: 1.6; }
+.abstract p + p { margin-top: 1em; }
+
+/* ---------- Figures ---------- */
+figure { margin: 0; }
+figcaption { font-size: 0.92rem; line-height: 1.5; color: var(--ink-2); margin-top: 0.8rem; max-width: 80ch; }
+figcaption strong { color: var(--ink); }
+.figure-num { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); margin-right: 0.5rem; }
+
+.strips { display: grid; gap: 0.6rem; }
+.strip { border-radius: 6px; overflow: hidden; background: #fff; position: relative; border: 1px solid var(--line); }
+.strip img { width: 100%; }
+.strip .label {
+  position: absolute; left: 0.6rem; top: 0.6rem;
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.04em;
+  padding: 0.25rem 0.55rem; border-radius: 3px;
+}
+.strip.ours .label { background: var(--accent); color: #fff; }
+.strip.base .label { background: var(--baseline-soft); color: var(--ink); }
+.strip + .strip-gap { height: 0.6rem; }
+
+.main-fig { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px; padding: clamp(1rem, 3vw, 2rem); }
+.main-fig img { width: min(100%, 760px); margin-inline: auto; }
+
+.gibbon { background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.gibbon .label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.04em; background: var(--accent); color: #fff; display: inline-block; padding: 0.25rem 0.55rem; margin: 0.6rem 0 0 0.6rem; border-radius: 3px; }
+.gibbon img { width: 100%; }
+
+/* ---------- Math ---------- */
+.math-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.stmt {
+  background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem 1.4rem;
+  overflow-x: auto;
+}
+.stmt.wide { grid-column: 1 / -1; }
+.stmt .kind { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.stmt .kind b { color: var(--ink); font-weight: 600; }
+.stmt h4 { font-size: 1.05rem; font-weight: 600; margin-top: 0.35rem; }
+.stmt p { margin-top: 0.6rem; font-size: 0.98rem; }
+.stmt .eq { margin: 0.9rem 0 0.2rem; font-size: 1.02rem; overflow-x: auto; }
+.stmt .eq mjx-container { margin: 0 !important; }
+.stmt.memory { border-color: var(--memory); background: var(--memory-soft); }
+.stmt.reward { border-color: var(--reward); background: var(--reward-soft); }
+.stmt.memory .kind b { color: var(--memory); }
+.stmt.reward .kind b { color: var(--reward); }
+.proof { font-size: 0.92rem; color: var(--ink-2); margin-top: 0.7rem; }
+.proof .qed { float: right; color: var(--ink-3); }
+.eqno { float: right; font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-3); }
+
+.callout { border-left: 3px solid var(--amber); background: var(--amber-soft); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-top: 1.5rem; }
+.callout p { font-size: 0.98rem; }
+
+/* ---------- Algorithm ---------- */
+.algo { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; margin-top: 1.5rem; }
+.algo header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--line); font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
+.algo header span { font-family: var(--font-mono); font-weight: 400; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.algo ol { list-style: none; margin: 0; padding: 0.9rem 1.2rem 1rem; font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.75; counter-reset: line; min-width: 560px; }
+.algo li { counter-increment: line; display: grid; grid-template-columns: 2rem 1fr auto; gap: 0.75rem; align-items: baseline; }
+.algo li::before { content: counter(line); color: var(--ink-3); text-align: right; font-size: 0.78rem; }
+.algo li.req { counter-increment: none; }
+.algo li.req::before { content: ""; }
+.algo li .ref { color: var(--ink-3); font-size: 0.75rem; }
+.algo .i1 { padding-left: 1.5rem; } .algo .i2 { padding-left: 3rem; } .algo .i3 { padding-left: 4.5rem; }
+.algo .kw { font-weight: 600; }
+.algo .hl-reward { color: var(--reward); font-weight: 500; }
+.algo .hl-memory { color: var(--memory); font-weight: 500; }
+.algo mjx-container { font-size: 105% !important; }
+
+/* ---------- Tables ---------- */
+.table-wrap { overflow-x: auto; margin-top: 1.25rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-raised); }
+table { border-collapse: collapse; width: 100%; font-family: var(--font-mono); font-size: 0.84rem; font-variant-numeric: tabular-nums; min-width: 560px; }
+th, td { padding: 0.6rem 0.9rem; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th { font-weight: 500; color: var(--ink-3); font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; }
+th.group { text-align: center; border-bottom: 1px solid var(--line-strong); color: var(--ink); text-transform: none; font-size: 0.82rem; letter-spacing: 0; }
+th:first-child, td:first-child { text-align: left; }
+tbody tr:last-child td { border-bottom: none; }
+tr.ours td { background: var(--accent-soft); }
+tr.ours td:first-child { color: var(--accent-ink); font-weight: 600; }
+tr.oracle td { border-top: 1px solid var(--line-strong); color: var(--ink-2); font-style: italic; }
+td b { font-weight: 600; color: var(--ink); }
+td .pm { color: var(--ink-3); }
+.table-cap { font-size: 0.92rem; line-height: 1.5; color: var(--ink-2); margin-top: 0.8rem; max-width: 80ch; }
+.table-cap strong { color: var(--ink); }
+
+/* ---------- Video grid ---------- */
+.pure-cip { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem; }
+.pure-cip .tag { position: absolute; left: 0.6rem; top: 0.6rem; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; background: var(--accent); color: #fff; padding: 0.25rem 0.5rem; border-radius: 3px; }
+.pure-cip .cap { grid-column: 1 / -1; font-size: 0.92rem; color: var(--ink-2); line-height: 1.5; max-width: 80ch; }
+.two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.two-col figure { position: sticky; top: 1.5rem; }
+.q1-fig { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 1rem; }
+.q1-fig img { width: 100%; }
+.q-eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0.15rem 0.45rem; margin-bottom: 0.6rem; }
+
+/* ---------- Discussion / cite ---------- */
+.limits { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.limits div { border-top: 2px solid var(--line-strong); padding-top: 0.8rem; font-size: 0.95rem; }
+.limits h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+pre.bib { background: var(--bg-sunken); border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; overflow-x: auto; margin: 1.25rem 0 0; color: var(--ink-2); }
+footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-3); letter-spacing: 0.02em; line-height: 1.6; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .sec-head, .sec-body { grid-template-columns: 1fr; gap: 0.5rem; }
+  .sec-body > .lead { grid-column: 1; }
+  .two-col { grid-template-columns: 1fr; }
+  .two-col figure { position: static; }
+}
+@media (max-width: 600px) {
+  .pure-cip { grid-template-columns: 1fr; }
+  body { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <nav aria-label="Site"><a href="../projects.html">&larr; JWK7 / Projects</a></nav>
+    <nav aria-label="Sections">
+      <a href="#overview">Overview</a>
+      <a href="#abstract">Abstract</a>
+      <a href="#method">Method</a>
+      <a href="#experiments">Experiments</a>
+      <a href="#discussion">Discussion</a>
+      <a href="#cite">Cite</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <div class="switch" role="tablist" aria-label="Environment">
+      <button type="button" role="tab" aria-selected="true" data-env="walker">Walker</button>
+      <button type="button" role="tab" aria-selected="false" data-env="hopper">Hopper</button>
+    </div>
+    <div class="hero-video">
+      <video id="v-walker" autoplay muted loop playsinline preload="auto" src="assets/videos/walker_6way.mp4"></video>
+      <video id="v-hopper" muted loop playsinline preload="auto" src="assets/videos/hopper_6way.mp4" hidden></video>
+    </div>
+    <p class="hero-cap">F-CIP pretraining followed by fine-tuning on F-CIP plus a β-weighted forward-velocity reward yields upright running and hopping, whereas the velocity reward alone collapses to bouncing and scooting along the ground. Our method never optimizes the oracle hand-designed reward.</p>
+    <div class="eyebrow">AAAI 2027</div>
+    <h1>Bellman Meets Kolmogorov
+      <span class="sub">Unsupervised Reinforcement Learning Through Mastering Chaos</span>
+    </h1>
+    <p class="authors">
+      Tristan Shah<sup>1∗</sup>, Wooyoung Chung<sup>1∗</sup>, Volodomyr Makarenko<sup>1</sup>, Juan Wachs<sup>2</sup>, Stas Tiomkin<sup>1†</sup>
+    </p>
+    <p class="affil">
+      <sup>1</sup>Texas Tech University &nbsp;·&nbsp; <sup>2</sup>Purdue University &nbsp;·&nbsp; <sup>∗</sup>Equal contribution &nbsp;·&nbsp; <sup>†</sup><a href="mailto:stas.tiomkin@ttu.edu">stas.tiomkin@ttu.edu</a>
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="assets/paper.pdf">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1h7l3 3v11H3V1zm1 1v12h8V5h-3V2H4zm2 5h6v1H6V7zm0 2h6v1H6V9zm0 2h6v1H6v-1z"/></svg>
+        Paper (PDF)
+      </a>
+      <!-- TODO: fill in when available -->
+      <a class="btn" href="#" aria-disabled="true">arXiv</a>
+      <a class="btn" href="#" aria-disabled="true">Code</a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MAIN FIGURE ================= -->
+<section class="tight" id="overview">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Method at a glance</div>
+      <h2>A per-step reward and a memory matrix turn CIP into a standard RL problem</h2>
+    </div>
+      <figure>
+        <div class="main-fig">
+          <img src="assets/figures/AAAI_Main_Fig.svg" alt="Schematic of the method: a perception-action loop between environment and agent, and the Forward CIP block containing the memory update and the reward.">
+        </div>
+        <figcaption><span class="figure-num">Figure 3</span><strong>Schematic depiction of our method.</strong> The agent interacts with the environment, which returns a local Jacobian \(\fx := \partial f/\partial x\,|_{(x_t,u_t)}\) used to emit a reward \(r_t\) and update the agent's memory \(S_t\). Note that the memory is updated after the reward emission so the reward \(r_t\) is calculated with the current memory \(S_t\).</figcaption>
+      </figure>
+  </div>
+</section>
+
+<!-- ================= ABSTRACT ================= -->
+<section id="abstract">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Abstract</div>
+      <h2>Making the edge of chaos directly optimizable as an RL objective</h2>
+    </div>
+    <div class="sec-body">
+      <div class="lead measure abstract">
+        <p>Reinforcement learning (RL) is a powerful paradigm for training agents, yet its success rests on domain expertise of human engineers who design informative reward signals for every new task. Unsupervised RL aims to replace this engineering with intrinsic motivation (IM): reward signals that emerge from the agent-environment interaction itself. Existing IM objectives, however, reward state space coverage or model surprise without providing a strong inductive bias towards useful behaviors. We introduce <strong>Forward CIP</strong> (Controllable Information Production), an objective derived from Kolmogorov-Sinai entropy that is directly compatible with existing RL algorithms. Maximizing this quantity alone results in unsupervised discovery of skills such as balancing and maintaining controllability, which are essential for more complex robot behaviors. Paired with a minimal forward-velocity reward, our method produces coordinated gaits such as hopping and running which otherwise require reward engineering to learn.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FIGURE 1 ================= -->
+<section class="tight">
+  <div class="wrap">
+    <figure>
+      <div class="strips">
+        <div class="strip ours"><span class="label">Walker — Ours: F-CIP + β·velocity</span><img src="assets/figures/walker-run-cip-and-vel.png" alt="Film strip of the walker running upright under F-CIP plus velocity reward" loading="lazy"></div>
+        <div class="strip base"><span class="label">Walker — Baseline: velocity only</span><img src="assets/figures/walker-scoot-onlyvel.png" alt="Film strip of the walker scooting along the ground under the velocity-only reward" loading="lazy"></div>
+        <div class="strip ours"><span class="label">Hopper — Ours: F-CIP + β·velocity</span><img src="assets/figures/hopper-hop-cip-and-vel.png" alt="Film strip of the hopper hopping upright under F-CIP plus velocity reward" loading="lazy"></div>
+        <div class="strip base"><span class="label">Hopper — Baseline: velocity only</span><img src="assets/figures/hopper-scoot-onlyvel.png" alt="Film strip of the hopper bouncing along the ground under the velocity-only reward" loading="lazy"></div>
+      </div>
+      <figcaption><span class="figure-num">Figure 1</span><strong>Emergent locomotion strategies on walker and hopper.</strong> F-CIP pretraining followed by fine-tuning on F-CIP plus a β-weighted forward-velocity reward yields upright running and hopping (teal), whereas the velocity reward alone collapses to bouncing and scooting along the ground (gray).</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= CONTRIBUTIONS ================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Introduction</div>
+      <h2>CIP in its original form is computed backward in time. RL needs a reward emitted forward.</h2>
+    </div>
+    <div class="sec-body">
+      <div class="lead measure">
+        <p>RL imposes two structural requirements on its objective: (i) the reward must be emitted incrementally during the forward agent-environment interaction, and (ii) the reward must be Markovian in the agent's state to support bootstrapped value learning. CIP in its original form violates both. It is computed by a backward-in-time Riccati recursion: the increment at the current time depends on a matrix propagated from the terminal time, i.e., on the entire future trajectory.</p>
+        <p>We introduce <strong>Forward CIP</strong> (F-CIP): a forward-in-time incremental decomposition of CIP that makes it, for the first time, directly optimizable by RL. This resolves requirement (i) by exposing an instantaneous per-step reward, and requirement (ii) by identifying the information matrix \(S_t\) as a sufficient statistic of the past: augmenting the state with \(S_t\) exactly restores the Markov property (Proposition 3). We prove (Lemma 1, Theorem 4) that the forward iteration converges to the same quantity as the backward recursion, so no approximation is introduced. Empirically, PPO on the F-CIP reward alone yields unsupervised self-righting and standing. With a single additional velocity term, agents learn upright hopping and running; the same velocity reward without F-CIP collapses to degenerate gaits.</p>
+        <h3>Our contributions are summarized as follows</h3>
+        <ol style="padding-left:1.4rem; margin:0; display:grid; gap:0.6rem;">
+          <li><strong>Theory.</strong> A forward-in-time characterization of CIP as a sum of per-step increments (Lemma 1).</li>
+          <li><strong>Algorithm.</strong> A numerically stable log-domain iteration exposing a per-step reward and an information-matrix memory \(S_t\), casting CIP maximization as a standard RL problem.</li>
+          <li><strong>Experiments.</strong> The first RL agent trained directly on the CIP objective. Maximizing it drives the unsupervised discovery of standing behaviors, while combining it with a downstream objective yields coherent locomotion strategies such as hopping and running which otherwise require reward engineering to learn.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Method</div>
+      <h2>Forward estimation of CIP</h2>
+    </div>
+    <div class="sec-body">
+      <div class="lead measure">
+        <p>We factor the calculation of CIP into a sum of increments emitted during the forward agent-environment interaction, so that each increment can serve as an instantaneous reward. Our key insight comes from the control-estimation duality (Todorov 2008): the backward Riccati recursion in Equation (2) is a control-side object, and its estimation-side dual is a forward-in-time covariance iteration whose increments depend only on the current Jacobian \(\fx\) and a propagated information matrix \(S_t\).</p>
+      </div>
+
+
+      <div class="lead measure" style="margin-top:2.5rem;">
+        <h3>Controllable Information Production</h3>
+        <p>CIP is defined as the KSE of the open-loop dynamical control system \(f : \mathcal{X}\times\mathcal{U}\to\mathcal{X}\) where \(\mathcal{U}\) is the action space. Open-loop KSE is the entropy production rate which the agent is exposed to along its trajectory, considering that infinitesimal perturbations grow without regulation due to feedback by a policy \(\pi : \mathcal{X}\to\mathcal{U}\).</p>
+        <div class="stmt" style="margin-top:1rem;">
+          <div class="eq">\[ \mathrm{CIP} := h_{\ks}(f^{\ol}), \qquad f^{\ol}(x) = f\big(x, \sg(\pi(x))\big) \]</div>
+          <p>The symbol \(\sg\) denotes the stop-gradient operation. It was shown that CIP can be calculated via a backward recursion:</p>
+          <div class="eq"><span class="eqno">(2)</span>\[ \begin{aligned} h_t &= h_{t+1} + \log\det\!\big(Y_{t+1} + \fx \fx^{\top}\big), & h_T &= 0,\\ Y_t &= \I - \fx^{\top}\big(Y_{t+1} + \fx \fx^{\top}\big)^{-1}\fx, & Y_T &= \I, \end{aligned} \]</div>
+          <p>where \(\fx := \partial f/\partial x\,|_{(x_t,u_t)}\) is the local Jacobian with respect to state. If \(h_t\) is propagated backward in time along an infinitely long trajectory then its one-half time average converges to the open-loop KSE:</p>
+          <div class="eq"><span class="eqno">(3)</span>\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\,h_0 = h_{\ks}(f^{\ol}). \]</div>
+          <p>The increment between \(h_t\) and \(h_{t+1}\) in Equation (2) is not available to the agent during the forward rollout as a reward quantity: the source of CIP's incompatibility with RL. Furthermore, it depends on \(Y_{t+1}\), which is a function of the entire future trajectory: breaking the Markov Property required for bootstrapped value learning.</p>
+        </div>
+      </div>
+
+      <div class="full">
+        <div class="math-grid">
+          <div class="stmt wide">
+            <div class="kind"><b>Lemma 1</b> · Forward covariance characterization of CIP</div>
+            <p>Let</p>
+            <div class="eq"><span class="eqno">(4)</span>\[ \Sigma_{t+1} = W_{t+1} + \fx \Sigma_t \fx^{\top}, \qquad \Sigma_0 = W_0, \]</div>
+            <p>be the open-loop covariance propagation equation for state uncertainty, where \(W_t\) is the process-noise covariance injected at step \(t\), uniformly bounded and positive definite. Then:</p>
+            <div class="eq">\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\ln\det\Sigma_T = h_{\ks}(f^{\ol}) = \mathrm{CIP}. \]</div>
+            <p class="proof">Direct propagation of Equation (4) is numerically unstable, since the condition number of \(\Sigma_t\) grows exponentially with time. Furthermore, there is no additive increment available to interpret as a reward. To overcome this instability we instead propagate \(\Sigma_t\) in the \(\ln\det\) domain via an iteration derived in Lemma 2 which exposes an instantaneous reward signal.</p>
+          </div>
+
+          <div class="stmt wide">
+            <div class="kind"><b>Lemma 2</b> · Log-domain iteration</div>
+            <p>Let \(h_t := \ln\det\Sigma_t\) and let \(S_t := \Sigma_t^{-1}\) be the information matrix, and choose \(W_t = \I\) (admissible by the weighting invariance of Lemma 1). Then:</p>
+            <div class="eq"><span class="eqno">(5)</span>\[ h_{t+1} = h_t + \ln\det\!\big(S_t + \fx^{\top}\fx\big), \qquad h_0 = 0, \]</div>
+            <div class="eq"><span class="eqno">(6)</span>\[ S_{t+1} = \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}, \qquad S_0 = \I. \]</div>
+            <p class="proof"><em>Proof.</em> With \(W_t = \I\), Equation (4) reduces to \(\Sigma_{t+1} = \I + \fx\Sigma_t\fx^{\top}\) with \(\Sigma_0 = \I\). Taking \(\ln\det\) and applying Sylvester's identity yields the first equation; inverting and applying the Woodbury identity yields the second. <span class="qed">□</span></p>
+            <p class="proof">The iteration in Lemma 2 is numerically stable: because \(\Sigma_t \succeq \I\) for all \(t\), the information matrix is bounded, \(0 \preceq S_t \preceq \I\), so the exponential growth of \(\Sigma_t\) underflows towards zero in \(S_t\), remaining well-conditioned as a neural network input.</p>
+          </div>
+
+          <div class="stmt reward">
+            <div class="kind"><b>Reward</b> · Equation (7)</div>
+            <h4>The increment in Equation (5) defines a per-step reward</h4>
+            <div class="eq">\[ r(x_t,u_t,S_t) := \ln\det\!\big(S_t + \fx^{\top}\fx\big) = h_{t+1} - h_t. \]</div>
+            <p>The reward carries the memory term \(S_t\) in its signature, so it is not Markovian in \(x_t\) alone.</p>
+          </div>
+
+          <div class="stmt memory">
+            <div class="kind"><b>Memory</b> · Equation (6)</div>
+            <h4>The information matrix is a sufficient statistic of the past</h4>
+            <div class="eq">\[ S_{t+1} = \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}, \qquad S_0 = \I. \]</div>
+            <p>As \(S_t\) is symmetric, only its \(n(n+1)/2\) unique entries need be carried, and its boundedness in \((0,\I]\) makes it a well-conditioned network input despite the augmentation.</p>
+          </div>
+
+          <div class="stmt">
+            <div class="kind"><b>Proposition 3</b> · Markov restoration</div>
+            <p>Let \(z_t := (x_t, S_t) \in \mathcal{Z} := \mathcal{X}\times\mathcal{S}\), where \(\mathcal{S}\) denotes the symmetric matrices satisfying \(0 \preceq S \preceq \I\). Then the tuple \((\mathcal{Z}, \mathcal{U}, p_z, r)\), with \(r\) as in Equation (7), is a Markov decision process.</p>
+            <p class="proof"><em>Proof.</em> The transition of \(z_t\) factorizes: \(x_{t+1} \sim p(\cdot\mid x_t,u_t)\) is the environment step, and \(S_{t+1}\) in Equation (6) is a deterministic function of \((x_t,u_t,S_t)\) through the state Jacobian \(\fx\). The reward \(r(z_t,u_t)\) depends only on the current augmented state and action. Hence \(z_{t+1}\) and \(r_t\) are determined by \((z_t,u_t)\) alone. <span class="qed">□</span></p>
+          </div>
+
+          <div class="stmt">
+            <div class="kind"><b>Theorem 4</b> · Exact decomposition of CIP</div>
+            <p>In the MDP of Proposition 3, the undiscounted return telescopes, \(\sum_{t=0}^{T-1} r(z_t,u_t) = \ln\det\Sigma_T\), and consequently</p>
+            <div class="eq"><span class="eqno">(8)</span>\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\sum_{t=0}^{T-1} r(z_t,u_t) = h_{\ks}(f^{\ol}). \]</div>
+            <p><em>Maximizing the average reward of the MDP is therefore equivalent to maximizing CIP.</em></p>
+            <p class="proof"><em>Proof.</em> By Lemma 2, \(\sum_{t=0}^{T-1} r_t = h_T - h_0 = \ln\det\Sigma_T\). The limit follows from Lemma 1. <span class="qed">□</span></p>
+          </div>
+        </div>
+
+        <div class="callout measure">
+          <p><strong>Implementation.</strong> Theorem 4 is an average-reward statement, whereas standard policy-gradient algorithms optimize a discounted objective. In practice we optimize the discounted proxy with \(\gamma\) close to 1; the discounted-optimal policy converges to the average-reward-optimal policy as \(\gamma\to 1\). The augmented state \(z_t = (x_t, S_t)\) is passed to both the value function and the policy. The Jacobian \(\fx\) is obtained from the Mujoco-MJX simulator at each step.</p>
+        </div>
+
+        <div class="algo">
+          <header>Algorithm 1: Training Forward CIP and Extrinsic Reward <span>Standard PPO</span></header>
+          <ol>
+            <li class="req"><span></span><span><span class="kw">Require:</span> policy \(\pi_\theta\), value function \(V_\phi\), iterations \(T_{\mathrm{pre}}, T_{\mathrm{adapt}}, T_{\mathrm{warm}}\), extrinsic weight \(\beta_{\max}\), horizon \(H\), \(N\) environments</span><span></span></li>
+            <li><span></span><span><span class="kw">for</span> \(i := 1,\dots,T_{\mathrm{pre}} + T_{\mathrm{adapt}}\) <span class="kw">do</span></span><span></span></li>
+            <li><span></span><span class="i1">\(\beta \leftarrow \beta_{\max}\cdot\min\!\Big(1, \frac{\max(0,\, i - T_{\mathrm{pre}})}{T_{\mathrm{warm}}}\Big)\)</span><span></span></li>
+            <li><span></span><span class="i1"><span class="kw">for</span> each of \(N\) parallel environments <span class="kw">do</span></span><span></span></li>
+            <li><span></span><span class="i2">\(x_0 \sim \rho_0,\quad S_0 \leftarrow \I\)</span><span></span></li>
+            <li><span></span><span class="i2"><span class="kw">for</span> \(t := 0,\dots,H-1\) <span class="kw">do</span></span><span></span></li>
+            <li><span></span><span class="i3">\(z_t \leftarrow (x_t, S_t)\)</span><span class="ref">Prop. 3</span></li>
+            <li><span></span><span class="i3">Take action \(u_t \sim \pi_\theta(\cdot\mid z_t)\)</span><span></span></li>
+            <li><span></span><span class="i3">Receive \(x_{t+1}\) and \(\fx\)</span><span></span></li>
+            <li><span></span><span class="i3 hl-reward">\(r_t \leftarrow \ln\det\!\big(S_t + \fx^{\top}\fx\big)\)</span><span class="ref">Eq. (7)</span></li>
+            <li><span></span><span class="i3 hl-memory">\(S_{t+1} \leftarrow \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}\)</span><span class="ref">Eq. (6)</span></li>
+            <li><span></span><span class="i3">\(\hat r_t \leftarrow r_t + \beta\, v_t\)</span><span></span></li>
+            <li><span></span><span class="i2"><span class="kw">end for</span></span><span></span></li>
+            <li><span></span><span class="i1"><span class="kw">end for</span></span><span></span></li>
+            <li><span></span><span class="i1">Update \(\theta, \phi\) on \(\{(z_t, u_t, \hat r_t)\}\)</span><span class="ref">Standard PPO</span></li>
+            <li><span></span><span><span class="kw">end for</span></span><span></span></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EXPERIMENTS ================= -->
+<section id="experiments">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Experiments</div>
+      <h2>Three questions</h2>
+    </div>
+    <div class="sec-body">
+      <div class="lead measure">
+        <p>Our experiments address three questions: <strong>Q1.</strong> Does a learned value function converge to the true KSE on a known attractor? <strong>Q2.</strong> What behaviors are induced by maximizing F-CIP, with no extrinsic reward? <strong>Q3.</strong> Can F-CIP simplify reward engineering on locomotion tasks?</p>
+      </div>
+
+      <!-- Q1 -->
+      <div class="full two-col" style="margin-top:2.5rem;">
+        <div class="measure">
+          <span class="q-eyebrow">Q1 · KSE Estimation</span>
+          <h3>The learned value function recovers the true KSE of the Lorenz attractor</h3>
+          <p>We validate the convergence of our learned incremental estimator on the Lorenz attractor with a known KSE value of 0.906 nats/s. The KSE is extracted from the learned estimator as \(\frac{1-\gamma}{2\Delta t}\mathbb{E}[V_\phi(z_t)]\), where the prefactor converts the accumulated discounted return into a rate. Here \(V_\phi\) is estimated by TD learning on trajectories sampled from the attractor. Figure 4a demonstrates that the estimator converges to the known value for a range of discount factors \(\gamma\). Setting \(\gamma\) to zero still enables estimation of KSE since that special case corresponds to the value function learning only the instantaneous reward. However, we observe that increasing values of \(\gamma\) result in faster convergence to the true KSE.</p>
+          <p>Since the value function learns a discounted summation its output can be interpreted as a local indicator of the "chaos-to-go". The value function attains its largest values near the splitting point between the two attractor wings, where the local dynamics are most unstable and trajectories can diverge towards either wing. This property motivates using the learned value as a local signal of proximity to the EOC.</p>
+        </div>
+        <figure>
+          <div class="q1-fig"><img src="assets/figures/gamma_convergence.png" alt="Estimated KSE on the Lorenz attractor versus training iteration for discount factors from 0 to 0.9, converging to the true KSE of 0.9056 nats/s; inset shows the attractor colored by the learned value." loading="lazy"></div>
+          <figcaption><span class="figure-num">Figure 4</span><strong>Learning the KSE on the Lorenz attractor.</strong> (a) convergence of the learned value function to the known KSE for a range of \(\gamma\in[0.0, 0.9]\); (b) the attractor colored by the learned \(V_\phi(z)\) for \(\gamma = 0.9\) where bright green indicates higher value.</figcaption>
+        </figure>
+      </div>
+
+      <!-- Q2 -->
+      <div class="full" style="margin-top:3.5rem;">
+        <div class="measure">
+          <span class="q-eyebrow">Q2 · Emergent Behaviors</span>
+          <h3>Maximizing F-CIP alone produces swing-up and upright stabilization</h3>
+          <p>Maximizing F-CIP alone, with no extrinsic reward, produces swing-up and upright stabilization: Figure 2 shows a full swing-up and stabilization trajectory in the gibbon environment. Table 1 quantifies this across all four systems, reporting the normalized height of each system's extremity (i.e. pendulum tip; gibbon head) over the final 10% of the episode, averaged over 10 seeds. All agents start from the hanging pose, so the intrinsic objective alone must drive both swing-up and stabilization. F-CIP is the only objective that reliably reaches the upright configuration on all four systems.</p>
+        </div>
+        <div class="pure-cip">
+          <div class="clip">
+            <span class="tag">Hopper · F-CIP only · no extrinsic reward</span>
+            <video autoplay muted loop playsinline preload="metadata" src="assets/videos/hopper_cip.mp4"></video>
+          </div>
+          <div class="clip">
+            <span class="tag">Walker · F-CIP only · no extrinsic reward</span>
+            <video autoplay muted loop playsinline preload="metadata" src="assets/videos/walker_cip.mp4"></video>
+          </div>
+          <p class="cap">Maximizing F-CIP alone, with no extrinsic reward. The pure-intrinsic experiment runs only the first \(T_{\mathrm{pre}}\) iterations, during which \(\beta = 0\).</p>
+        </div>
+        <figure style="margin-top:1.5rem;">
+          <div class="gibbon">
+            <span class="label">Gibbon — Ours: F-CIP pre-training with no extrinsic reward</span>
+            <img src="assets/figures/gibbon-standup.jpg" alt="Time-lapse of the gibbon swinging up from a hanging pose to an upright stand" loading="lazy">
+          </div>
+          <figcaption><span class="figure-num">Figure 2</span><strong>Unsupervised standing up behavior via F-CIP maximization.</strong> This behavior is achieved through maximization of F-CIP alone without any extrinsic reward.</figcaption>
+        </figure>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th></th><th class="group" colspan="6">Intrinsic Motivation Objective</th></tr>
+              <tr><th>System</th><th>F-CIP (PPO)</th><th>F-CIP (APPO)</th><th>DIAYN</th><th>SMM</th><th>ICM</th><th>APT</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>CP</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.26</td><td>0.68</td><td>0.07</td><td>0.64</td></tr>
+              <tr><td>DP</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.44</td><td>0.06</td><td>0.05</td><td>0.25</td></tr>
+              <tr><td>TP</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.38</td><td>0.14</td><td>0.09</td><td>0.48</td></tr>
+              <tr><td>G</td><td><b>0.98</b></td><td><b>0.99</b></td><td>0.51</td><td>0.52</td><td>0.05</td><td>0.41</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-cap"><span class="figure-num">Table 1</span><strong>Comparison of IM on pendulum environments.</strong> We report mean extremity height over the final 10% of the episode averaged over 10 random seeds. Values are min-max normalized so that 0.0 corresponds to the initial hanging configuration and 1.0 corresponds to the fully upright pose. The abbreviations CP, DP, TP, and G correspond to cart pole, double pendulum, triple pendulum, and gibbon, respectively. The comparison is not algorithm-matched: F-CIP is optimized with PPO/APPO, whereas the baselines use the reference URLB implementations, which are built on DDPG.</p>
+      </div>
+
+      <!-- Q3 -->
+      <div class="full" style="margin-top:3.5rem;">
+        <div class="measure">
+          <span class="q-eyebrow">Q3 · Reward Simplification</span>
+          <h3>CIP supplies the inductive bias that reward engineers otherwise encode by hand</h3>
+          <p>Inducing coherent locomotion strategies such as hopping and walking using RL usually requires careful reward engineering. The simplest reward of maximizing forward velocity describes the desired outcome to move forward but imposes no bias on how that should be achieved. Maximizing a forward velocity reward with an RL agent results in degenerate solutions such as "scooting" along the ground (gray rows of Figure 1) rather than adopting an upright gait. The standard remedy is to design a reward to incentivize upright posture, requiring domain knowledge about the robot itself. We show that CIP can supply the inductive bias to maintain an upright posture, eliminating the need for this domain knowledge.</p>
+          <p>Our procedure has two phases (Algorithm 1). We first pre-train the agent for \(T_{\mathrm{pre}}\) steps to maintain a stable and upright posture using the F-CIP reward (Equation (7)). Next, we adapt the pre-trained policy for \(T_{\mathrm{adapt}}\) steps by exposing it to a forward velocity reward weighted by a \(\beta\) parameter, which warms up from zero towards \(\beta_{\max}\) over \(T_{\mathrm{warm}}\) steps. The agent optimizes the combined objective: \(\hat r_t = r_t + \beta v_t\), where \(v_t\) is the forward velocity component. Crucially, our method never optimizes the oracle hand-designed reward; that reward is only used at test time to evaluate task return.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th></th><th class="group" colspan="3">Hopper</th><th class="group" colspan="3">Walker</th></tr>
+              <tr><th>Method</th><th>Task Return ↑</th><th>Fwd. Vel. (m/s)</th><th>Height (m)</th><th>Task Return ↑</th><th>Fwd. Vel. (m/s)</th><th>Height (m)</th></tr>
+            </thead>
+            <tbody>
+              <tr class="ours"><td>Ours</td><td><b>0.39</b> <span class="pm">± 0.38</span></td><td>1.48 <span class="pm">± 0.33</span></td><td>0.73 <span class="pm">± 0.15</span></td><td><b>0.61</b> <span class="pm">± 0.03</span></td><td>4.52 <span class="pm">± 0.22</span></td><td>1.19 <span class="pm">± 0.04</span></td></tr>
+              <tr><td>Fwd. Vel. only</td><td>0.00 <span class="pm">± 0.00</span></td><td>0.77 <span class="pm">± 0.17</span></td><td>0.33 <span class="pm">± 0.03</span></td><td>0.10 <span class="pm">± 0.04</span></td><td>4.41 <span class="pm">± 0.22</span></td><td>0.47 <span class="pm">± 0.10</span></td></tr>
+              <tr><td>ICM<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.19 <span class="pm">± 0.03</span></td><td>0.28 <span class="pm">± 0.02</span></td><td>0.06 <span class="pm">± 0.01</span></td><td>4.10 <span class="pm">± 0.17</span></td><td>0.35 <span class="pm">± 0.03</span></td></tr>
+              <tr><td>APT<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.36 <span class="pm">± 0.06</span></td><td>0.29 <span class="pm">± 0.04</span></td><td>0.10 <span class="pm">± 0.01</span></td><td>4.63 <span class="pm">± 0.18</span></td><td>0.47 <span class="pm">± 0.04</span></td></tr>
+              <tr><td>DIAYN<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.36 <span class="pm">± 0.05</span></td><td>0.28 <span class="pm">± 0.02</span></td><td>0.06 <span class="pm">± 0.01</span></td><td>2.00 <span class="pm">± 0.21</span></td><td>0.43 <span class="pm">± 0.04</span></td></tr>
+              <tr><td>SMM<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.66 <span class="pm">± 0.06</span></td><td>0.22 <span class="pm">± 0.02</span></td><td>0.11 <span class="pm">± 0.02</span></td><td>4.26 <span class="pm">± 0.16</span></td><td>0.51 <span class="pm">± 0.04</span></td></tr>
+              <tr class="oracle"><td>Full reward (oracle)</td><td>0.52 <span class="pm">± 0.12</span></td><td>1.04 <span class="pm">± 0.23</span></td><td>0.79 <span class="pm">± 0.09</span></td><td>0.78 <span class="pm">± 0.04</span></td><td>6.07 <span class="pm">± 0.33</span></td><td>1.13 <span class="pm">± 0.02</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-cap"><span class="figure-num">Table 2</span><strong>Reward simplification on Hopper and Walker.</strong> Mean and standard deviation calculated over 10 evaluations of the trained policies. Ours pre-trains with F-CIP alone, then fine-tunes on the forward-velocity reward while continuing to maximize F-CIP (Algorithm 1). Task return is the comparison metric and is measured with the full hand-designed reward; <strong>bold</strong> marks the best performance among the methods. Forward velocity and torso height are reported as diagnostics of the emergent gait. Each pretraining baseline (†) is run in its intended URLB (DDPG) configuration: the intrinsic objective is maximized during pretraining and then replaced by the velocity reward during fine-tuning. In contrast, Ours continues to maximize F-CIP throughout fine-tuning. Ours, Fwd. Vel. only, and Full reward (oracle) are trained with the same PPO implementation, so the Fwd. Vel. only row serves as an algorithm-matched control.</p>
+
+        <div class="measure" style="margin-top:1.75rem;">
+          <p>Table 2 reports rollout statistics for both tasks. All baselines collapse to scooting: they hold a low torso height and accrue near-zero task return. Our method instead learns to hop and to run (teal rows of Figure 1), maintaining an upright posture and recovering the majority of the oracle's task return despite never observing that reward.</p>
+          <p>On hopper, the large variance of our task return is an artifact of the oracle metric rather than of the gait: the oracle reward is gated to zero whenever the torso leaves a narrow height band, and while all 10 evaluation seeds hop upright, some hop at heights outside this band and score zero despite a correct gait. Notably, our hopping policy travels ∼40% faster than the oracle policy (1.47 vs. 1.04 m/s), suggesting that the hand-designed height band could be overly restrictive: it penalizes the torso height excursions that fast hopping requires. On walker, our gait falls within the oracle's height band, yielding correspondingly low variance. Its forward velocity is comparable to the fastest baselines, yet ours is the only method besides the oracle to achieve an upright running gait whereas the baselines attain their speed by scooting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DISCUSSION ================= -->
+<section id="discussion">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Discussion</div>
+      <h2>Intrinsic motivation need not be confined to an exploration bonus</h2>
+    </div>
+    <div class="sec-body">
+      <div class="lead measure">
+        <p>We introduced F-CIP, a practical scheme for maximizing CIP with modern RL. Whereas CIP was previously optimizable only by expensive MPC planners, our exact per-step decomposition makes it compatible with bootstrapped value learning: the learned value function recovers the true KSE of a known chaotic attractor (Q1), maximizing the F-CIP reward alone produces swing-up and upright stabilization where standard IM objectives, in their reference URLB configurations, do not (Q2), and F-CIP pre-training replaces the postural reward engineering that locomotion tasks otherwise require (Q3).</p>
+        <p>These results support a broader position: intrinsic motivation need not be confined to an exploration bonus. Traditionally in continuous control, IM objectives serve almost exclusively as auxiliary signals. This aligns with their underlying design, as principles like coverage and surprise are inherently geared toward exploration. CIP is a different IM signal: because it targets EOC states directly, it produces useful behavior in both roles. As a primary objective it discovers self-righting with no external signal; as an auxiliary term it supplies an inductive bias toward controllable instability that reward engineers otherwise encode by hand.</p>
+        <h3>Limitations</h3>
+        <p>Our method has three main limitations.</p>
+      </div>
+      <div class="full limits">
+        <div>
+          <h4>Analytical Jacobians</h4>
+          <p>The reward requires analytical Jacobians. Differentiable simulators such as MuJoCo-MJX provide these efficiently, and F-CIP is well suited to this setting; physical reality, however, offers no Jacobians, so sim-to-real transfer will require either training entirely in simulation or learning the Jacobians from data.</p>
+        </div>
+        <div>
+          <h4>Memory grows quadratically</h4>
+          <p>The memory matrix \(S_t\) grows quadratically in the state dimension. On-policy training requires every parallel environment to carry its own \(S_t\), and off-policy training would require storing it per-transition in a replay buffer, so scaling to high-dimensional robots demands a compressed representation.</p>
+        </div>
+        <div>
+          <h4>Degenerate maximizers</h4>
+          <p>CIP admits degenerate maximizers, analogous to the noisy-TV problem of curiosity: in the pendulum systems the agent can accumulate reward by spinning freely, and in the hopper by uncontrolled thrashing. Adding joint damping removed these optima in our environments: damping taxes indiscriminate velocity accumulation while leaving configuration-dependent instability rewarded. However, this is an environment-level modification rather than an objective-level one, and a principled resolution remains open.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CITE ================= -->
+<section id="cite">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Citation</div>
+      <h2>Cite this work</h2>
+    </div>
+    <div class="sec-body">
+      <div class="lead">
+<pre class="bib">@inproceedings{shah2027bellman,
+  title     = {Bellman Meets Kolmogorov: Unsupervised Reinforcement Learning Through Mastering Chaos},
+  author    = {Shah, Tristan and Chung, Wooyoung and Makarenko, Volodomyr and Wachs, Juan and Tiomkin, Stas},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  year      = {2027}
+}</pre>
+        <p style="margin-top:1rem; font-size:0.95rem; color:var(--ink-2);">Builds on Controllable Information Production: Shah, T.; and Tiomkin, S. 2026. <a href="https://arxiv.org/abs/2601.22449">arXiv:2601.22449</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Texas Tech University · Purdue University. All experiments and model training described in this work were conducted on a single compute node equipped with two NVIDIA H100 Tensor Core GPUs and 1.0 TiB of system memory.
+  </div>
+</footer>
+
+<script>
+(function () {
+  var buttons = document.querySelectorAll('.switch button');
+  var videos = { walker: document.getElementById('v-walker'), hopper: document.getElementById('v-hopper') };
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var env = btn.dataset.env;
+      buttons.forEach(function (b) { b.setAttribute('aria-selected', String(b === btn)); });
+      Object.keys(videos).forEach(function (k) {
+        var v = videos[k];
+        if (k === env) { v.hidden = false; v.currentTime = 0; v.play().catch(function () {}); }
+        else { v.hidden = true; v.pause(); }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
