@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bellman Meets Kolmogorov</title>
-<meta name="description" content="Unsupervised Reinforcement Learning Through Mastering Chaos. Forward CIP: an objective derived from Kolmogorov-Sinai entropy that is directly compatible with existing RL algorithms.">
+<title>Bellman Meets Lyapunov</title>
+<meta name="description" content="Unsupervised Reinforcement Learning via Mastering Chaos. Forward CIP (F-CIP): an RL-native formulation of Controllable Information Production, defined by the system's dynamics alone.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <script>
 window.MathJax = {
   tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
-         macros: { fx: "f_{x_t}", ol: "{\\mathrm{ol}}", ks: "{\\mathrm{ks}}", I: "\\mathbf{I}", sg: "\\mathrm{sg}" } },
+         macros: { fx: "f_{x_t}", ol: "{\\mathrm{ol}}", I: "\\mathbf{I}", sg: "\\mathrm{sg}" } },
   svg: { fontCache: 'global' },
   options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
 };
@@ -348,9 +348,9 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
       <video id="v-hopper" muted loop playsinline preload="auto" src="assets/videos/hopper_6way.mp4" hidden></video>
     </div>
     <p class="hero-cap">F-CIP pretraining followed by fine-tuning on F-CIP plus a β-weighted forward-velocity reward yields upright running and hopping, whereas the velocity reward alone collapses to bouncing and scooting along the ground. Our method never optimizes the oracle hand-designed reward.</p>
-    <div class="eyebrow">AAAI 2027</div>
-    <h1>Bellman Meets Kolmogorov
-      <span class="sub">Unsupervised Reinforcement Learning Through Mastering Chaos</span>
+    <div class="eyebrow">ICLR 2027 · Under review</div>
+    <h1>Bellman Meets Lyapunov
+      <span class="sub">Unsupervised Reinforcement Learning via Mastering Chaos</span>
     </h1>
     <p class="authors">
       Tristan Shah<sup>1∗</sup>, Wooyoung Chung<sup>1∗</sup>, Volodomyr Makarenko<sup>1</sup>, Juan Wachs<sup>2</sup>, Stas Tiomkin<sup>1†</sup>
@@ -359,12 +359,11 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
       <sup>1</sup>Texas Tech University &nbsp;·&nbsp; <sup>2</sup>Purdue University &nbsp;·&nbsp; <sup>∗</sup>Equal contribution &nbsp;·&nbsp; <sup>†</sup><a href="mailto:stas.tiomkin@ttu.edu">stas.tiomkin@ttu.edu</a>
     </p>
     <div class="cta">
-      <a class="btn primary" href="assets/paper.pdf">
+      <a class="btn primary" href="https://arxiv.org/pdf/2610.02012" target="_blank" rel="noopener">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1h7l3 3v11H3V1zm1 1v12h8V5h-3V2H4zm2 5h6v1H6V7zm0 2h6v1H6V9zm0 2h6v1H6v-1z"/></svg>
         Paper (PDF)
       </a>
-      <!-- TODO: fill in arXiv when available -->
-      <a class="btn" href="#" aria-disabled="true">arXiv</a>
+      <a class="btn" href="https://arxiv.org/abs/2610.02012" target="_blank" rel="noopener">arXiv</a>
       <a class="btn" href="https://github.com/tristan-shah/cip_rl" target="_blank" rel="noopener">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         Code
@@ -384,7 +383,7 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
         <div class="main-fig">
           <img src="assets/figures/AAAI_Main_Fig.svg" alt="Schematic of the method: a perception-action loop between environment and agent, and the Forward CIP block containing the memory update and the reward.">
         </div>
-        <figcaption><span class="figure-num">Figure 3</span><strong>Schematic depiction of our method.</strong> The agent interacts with the environment, which returns a local Jacobian \(\fx := \partial f/\partial x\,|_{(x_t,u_t)}\) used to emit a reward \(r_t\) and update the agent's memory \(S_t\). Note that the memory is updated after the reward emission so the reward \(r_t\) is calculated with the current memory \(S_t\).</figcaption>
+        <figcaption><span class="figure-num">Figure 2</span><strong>Schematic of our method.</strong> The agent interacts with the environment, which returns a local Jacobian \(\fx := \partial f/\partial x\,|_{(x_t,u_t)}\) used to emit a reward \(r_t\) and update the agent's memory \(S_t\). Note that the memory is updated after the reward emission so the reward \(r_t\) is calculated with the current memory \(S_t\).</figcaption>
       </figure>
   </div>
 </section>
@@ -398,7 +397,7 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
     </div>
     <div class="sec-body">
       <div class="lead measure abstract">
-        <p>Reinforcement learning (RL) is a powerful paradigm for training agents, yet its success rests on domain expertise of human engineers who design informative reward signals for every new task. Unsupervised RL aims to replace this engineering with intrinsic motivation (IM): reward signals that emerge from the agent-environment interaction itself. Existing IM objectives, however, reward state space coverage or model surprise without providing a strong inductive bias towards useful behaviors. We introduce <strong>Forward CIP</strong> (Controllable Information Production), an objective derived from Kolmogorov-Sinai entropy that is directly compatible with existing RL algorithms. Maximizing this quantity alone results in unsupervised discovery of skills such as balancing and maintaining controllability, which are essential for more complex robot behaviors. Paired with a minimal forward-velocity reward, our method produces coordinated gaits such as hopping and running which otherwise require reward engineering to learn.</p>
+        <p>Reinforcement learning (RL) is a powerful paradigm for training agents, yet its success rests on domain expertise of human engineers who design informative reward signals for every new task. Unsupervised RL aims to reduce this engineering with intrinsic motivation (IM): reward signals that emerge from the agent-environment interaction itself. Existing IM objectives, however, involve the selection of information variables, which re-introduces domain expertise the field has sought to eliminate. We introduce <strong>Forward CIP</strong> (F-CIP), an RL-native formulation of the Controllable Information Production (CIP) objective, which is defined by the system's dynamics alone and requires no such selection. We prove that F-CIP is compatible with RL and demonstrate its effectiveness with existing algorithms. Training agents with F-CIP results in unsupervised discovery of primitive behaviors such as balancing and maintaining controllability, which are essential for more complex robot behaviors. Paired with a simple forward-velocity reward, our method produces coordinated gaits such as hopping and running which otherwise require reward engineering to learn.</p>
       </div>
     </div>
   </div>
@@ -428,13 +427,14 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
     </div>
     <div class="sec-body">
       <div class="lead measure">
-        <p>RL imposes two structural requirements on its objective: (i) the reward must be emitted incrementally during the forward agent-environment interaction, and (ii) the reward must be Markovian in the agent's state to support bootstrapped value learning. CIP in its original form violates both. It is computed by a backward-in-time Riccati recursion: the increment at the current time depends on a matrix propagated from the terminal time, i.e., on the entire future trajectory.</p>
-        <p>We introduce <strong>Forward CIP</strong> (F-CIP): a forward-in-time incremental decomposition of CIP that makes it, for the first time, directly optimizable by RL. This resolves requirement (i) by exposing an instantaneous per-step reward, and requirement (ii) by identifying the information matrix \(S_t\) as a sufficient statistic of the past: augmenting the state with \(S_t\) exactly restores the Markov property (Proposition 3). We prove (Lemma 1, Theorem 4) that the forward iteration converges to the same quantity as the backward recursion, so no approximation is introduced. Empirically, PPO on the F-CIP reward alone yields unsupervised self-righting and standing. With a single additional velocity term, agents learn upright hopping and running; the same velocity reward without F-CIP collapses to degenerate gaits.</p>
+        <p>CIP (Shah &amp; Tiomkin, 2026) is grounded in the sum of positive open-loop Lyapunov exponents, the rate at which the dynamics generate new distinguishable trajectories. Whereas visitation entropy weights all states alike, CIP weights states by the complexity of the dynamics passing through them, and is maximized by occupying the most dynamically sensitive regions: the edge of chaos. Existing optimizers of CIP, however, are sampling-based MPC planners, which must run a Riccati recursion over every candidate rollout. RL is a natural alternative: it amortizes the sampling cost into a learning phase and delivers a reactive feedback policy.</p>
+        <p>Yet RL imposes two structural requirements on its objective: (i) the reward must be emitted incrementally during the forward agent-environment interaction, and (ii) the reward must be Markovian in the agent's state to support bootstrapped value learning. CIP in its original form violates both. It is computed by a backward-in-time Riccati recursion: the increment at the current time depends on a matrix propagated from the terminal time, i.e., on the entire future trajectory.</p>
+        <p>We introduce <strong>Forward CIP</strong> (F-CIP): a forward-in-time incremental decomposition of CIP that makes it, for the first time, directly optimizable by RL. This resolves requirement (i) by exposing an instantaneous per-step reward, and requirement (ii) by identifying the information matrix \(S_t\) as a sufficient statistic of the past: augmenting the state with \(S_t\) exactly restores the Markov property (Proposition 3). We prove (Lemma 1, Theorem 4) that the forward iteration converges to the same quantity as the backward recursion, so no approximation is introduced. Empirically, training PPO on the F-CIP reward alone yields unsupervised self-righting and standing. With a single additional velocity term, agents learn upright hopping and running; the same velocity reward without F-CIP collapses to degenerate gaits.</p>
         <h3>Our contributions are summarized as follows</h3>
         <ol style="padding-left:1.4rem; margin:0; display:grid; gap:0.6rem;">
-          <li><strong>Theory.</strong> A forward-in-time characterization of CIP as a sum of per-step increments (Lemma 1).</li>
+          <li><strong>Theory.</strong> A forward-in-time characterization of CIP as a sum of per-step increments.</li>
           <li><strong>Algorithm.</strong> A numerically stable log-domain iteration exposing a per-step reward and an information-matrix memory \(S_t\), casting CIP maximization as a standard RL problem.</li>
-          <li><strong>Experiments.</strong> The first RL agent trained directly on the CIP objective. Maximizing it drives the unsupervised discovery of standing behaviors, while combining it with a downstream objective yields coherent locomotion strategies such as hopping and running which otherwise require reward engineering to learn.</li>
+          <li><strong>Experiments.</strong> The first RL agent trained directly on the CIP objective. Maximizing it drives the unsupervised discovery of primitive behaviors, while combining it with a downstream objective yields coherent locomotion strategies such as hopping and running which otherwise require reward engineering to learn.</li>
         </ol>
       </div>
     </div>
@@ -450,20 +450,20 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
     </div>
     <div class="sec-body">
       <div class="lead measure">
-        <p>We factor the calculation of CIP into a sum of increments emitted during the forward agent-environment interaction, so that each increment can serve as an instantaneous reward. Our key insight comes from the control-estimation duality (Todorov 2008): the backward Riccati recursion in Equation (2) is a control-side object, and its estimation-side dual is a forward-in-time covariance iteration whose increments depend only on the current Jacobian \(\fx\) and a propagated information matrix \(S_t\).</p>
+        <p>We factor the calculation of CIP into a sum of increments emitted during the forward agent-environment interaction, so that each increment can serve as an instantaneous reward. Our key insight comes from the control-estimation duality (Todorov 2008): the backward Riccati recursion in Equation (1) is a control-side object, and its estimation-side dual is a forward-in-time covariance iteration whose increments depend only on the current Jacobian \(\fx\) and a propagated information matrix \(S_t\).</p>
       </div>
 
 
       <div class="lead measure" style="margin-top:2.5rem;">
         <h3>Controllable Information Production</h3>
-        <p>CIP is defined as the KSE of the open-loop dynamical control system \(f : \mathcal{X}\times\mathcal{U}\to\mathcal{X}\) where \(\mathcal{U}\) is the action space. Open-loop KSE is the entropy production rate which the agent is exposed to along its trajectory, considering that infinitesimal perturbations grow without regulation due to feedback by a policy \(\pi : \mathcal{X}\to\mathcal{U}\).</p>
+        <p>CIP is defined as the sum of positive Lyapunov exponents (LE) of the open-loop dynamical control system \(f : \mathcal{X}\times\mathcal{U}\to\mathcal{X}\) where \(\mathcal{U}\) is the action space. Positive open-loop LE quantify the entropy production rate which the agent is exposed to along its trajectory, considering that infinitesimal perturbations grow without regulation due to feedback by a policy \(\pi : \mathcal{X}\to\mathcal{U}\).</p>
         <div class="stmt" style="margin-top:1rem;">
-          <div class="eq">\[ \mathrm{CIP} := h_{\ks}(f^{\ol}), \qquad f^{\ol}(x) = f\big(x, \sg(\pi(x))\big) \]</div>
-          <p>The symbol \(\sg\) denotes the stop-gradient operation. It was shown that CIP can be calculated via a backward recursion:</p>
-          <div class="eq"><span class="eqno">(2)</span>\[ \begin{aligned} h_t &= h_{t+1} + \log\det\!\big(Y_{t+1} + \fx \fx^{\top}\big), & h_T &= 0,\\ Y_t &= \I - \fx^{\top}\big(Y_{t+1} + \fx \fx^{\top}\big)^{-1}\fx, & Y_T &= \I, \end{aligned} \]</div>
-          <p>where \(\fx := \partial f/\partial x\,|_{(x_t,u_t)}\) is the local Jacobian with respect to state. If \(h_t\) is propagated backward in time along an infinitely long trajectory then its one-half time average converges to the open-loop KSE:</p>
-          <div class="eq"><span class="eqno">(3)</span>\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\,h_0 = h_{\ks}(f^{\ol}). \]</div>
-          <p>The increment between \(h_t\) and \(h_{t+1}\) in Equation (2) is not available to the agent during the forward rollout as a reward quantity: the source of CIP's incompatibility with RL. Furthermore, it depends on \(Y_{t+1}\), which is a function of the entire future trajectory: breaking the Markov Property required for bootstrapped value learning.</p>
+          <div class="eq">\[ \mathrm{CIP} := \Lambda^{+}(f^{\ol}), \qquad f^{\ol}(x) = f\big(x, \sg(\pi(x))\big) \]</div>
+          <p>where \(\Lambda^{+}(\cdot)\) is the sum of positive LE of the dynamical system. The symbol \(\sg\) denotes the stop-gradient operation. It was shown that CIP can be calculated via a backward recursion:</p>
+          <div class="eq"><span class="eqno">(1)</span>\[ \begin{aligned} h_t &= h_{t+1} + \log\det\!\big(Y_{t+1} + \fx \fx^{\top}\big), & h_T &= 0,\\ Y_t &= \I - \fx^{\top}\big(Y_{t+1} + \fx \fx^{\top}\big)^{-1}\fx, & Y_T &= \I, \end{aligned} \]</div>
+          <p>where \(\fx := \partial f/\partial x\,|_{(x_t,u_t)}\) is the local Jacobian with respect to state. If \(h_t\) is propagated backward in time along an infinitely long trajectory then its one-half time average converges to \(\Lambda^{+}(f^{\ol})\):</p>
+          <div class="eq"><span class="eqno">(2)</span>\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\,h_0 = \Lambda^{+}(f^{\ol}). \]</div>
+          <p>The increment between \(h_t\) and \(h_{t+1}\) in Equation (1) is not available to the agent during the forward rollout as a reward quantity: the source of CIP's incompatibility with RL. Furthermore, it depends on \(Y_{t+1}\), which is a function of the entire future trajectory: breaking the Markov Property required for bootstrapped value learning.</p>
         </div>
       </div>
 
@@ -472,30 +472,30 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
           <div class="stmt wide">
             <div class="kind"><b>Lemma 1</b> · Forward covariance characterization of CIP</div>
             <p>Let</p>
-            <div class="eq"><span class="eqno">(4)</span>\[ \Sigma_{t+1} = W_{t+1} + \fx \Sigma_t \fx^{\top}, \qquad \Sigma_0 = W_0, \]</div>
+            <div class="eq"><span class="eqno">(3)</span>\[ \Sigma_{t+1} = W_{t+1} + \fx \Sigma_t \fx^{\top}, \qquad \Sigma_0 = W_0, \]</div>
             <p>be the open-loop covariance propagation equation for state uncertainty, where \(W_t\) is the process-noise covariance injected at step \(t\), uniformly bounded and positive definite. Then:</p>
-            <div class="eq">\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\ln\det\Sigma_T = h_{\ks}(f^{\ol}) = \mathrm{CIP}. \]</div>
-            <p class="proof">Direct propagation of Equation (4) is numerically unstable, since the condition number of \(\Sigma_t\) grows exponentially with time. Furthermore, there is no additive increment available to interpret as a reward. To overcome this instability we instead propagate \(\Sigma_t\) in the \(\ln\det\) domain via an iteration derived in Lemma 2 which exposes an instantaneous reward signal.</p>
+            <div class="eq">\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\ln\det\Sigma_T = \mathrm{CIP}. \]</div>
+            <p class="proof">Direct propagation of Equation (3) is numerically unstable, since the condition number of \(\Sigma_t\) grows exponentially with time. Furthermore, there is no additive increment available to interpret as a reward. To overcome this instability we instead propagate \(\Sigma_t\) in the \(\ln\det\) domain via an iteration derived in Lemma 2 which exposes an instantaneous reward signal.</p>
           </div>
 
           <div class="stmt wide">
             <div class="kind"><b>Lemma 2</b> · Log-domain iteration</div>
             <p>Let \(h_t := \ln\det\Sigma_t\) and let \(S_t := \Sigma_t^{-1}\) be the information matrix, and choose \(W_t = \I\) (admissible by the weighting invariance of Lemma 1). Then:</p>
-            <div class="eq"><span class="eqno">(5)</span>\[ h_{t+1} = h_t + \ln\det\!\big(S_t + \fx^{\top}\fx\big), \qquad h_0 = 0, \]</div>
-            <div class="eq"><span class="eqno">(6)</span>\[ S_{t+1} = \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}, \qquad S_0 = \I. \]</div>
-            <p class="proof"><em>Proof.</em> With \(W_t = \I\), Equation (4) reduces to \(\Sigma_{t+1} = \I + \fx\Sigma_t\fx^{\top}\) with \(\Sigma_0 = \I\). Taking \(\ln\det\) and applying Sylvester's identity yields the first equation; inverting and applying the Woodbury identity yields the second. <span class="qed">□</span></p>
+            <div class="eq"><span class="eqno">(4)</span>\[ h_{t+1} = h_t + \ln\det\!\big(S_t + \fx^{\top}\fx\big), \qquad h_0 = 0, \]</div>
+            <div class="eq"><span class="eqno">(5)</span>\[ S_{t+1} = \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}, \qquad S_0 = \I. \]</div>
+            <p class="proof"><em>Proof.</em> With \(W_t = \I\), Equation (3) reduces to \(\Sigma_{t+1} = \I + \fx\Sigma_t\fx^{\top}\) with \(\Sigma_0 = \I\). Taking \(\ln\det\) and applying Sylvester's identity yields the first equation; inverting and applying the Woodbury identity yields the second. <span class="qed">□</span></p>
             <p class="proof">The iteration in Lemma 2 is numerically stable: because \(\Sigma_t \succeq \I\) for all \(t\), the information matrix is bounded, \(0 \preceq S_t \preceq \I\), so the exponential growth of \(\Sigma_t\) underflows towards zero in \(S_t\), remaining well-conditioned as a neural network input.</p>
           </div>
 
           <div class="stmt reward">
-            <div class="kind"><b>Reward</b> · Equation (7)</div>
-            <h4>The increment in Equation (5) defines a per-step reward</h4>
+            <div class="kind"><b>Reward</b> · Equation (6)</div>
+            <h4>The increment in Equation (4) defines a per-step reward</h4>
             <div class="eq">\[ r(x_t,u_t,S_t) := \ln\det\!\big(S_t + \fx^{\top}\fx\big) = h_{t+1} - h_t. \]</div>
             <p>The reward carries the memory term \(S_t\) in its signature, so it is not Markovian in \(x_t\) alone.</p>
           </div>
 
           <div class="stmt memory">
-            <div class="kind"><b>Memory</b> · Equation (6)</div>
+            <div class="kind"><b>Memory</b> · Equation (5)</div>
             <h4>The information matrix is a sufficient statistic of the past</h4>
             <div class="eq">\[ S_{t+1} = \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}, \qquad S_0 = \I. \]</div>
             <p>As \(S_t\) is symmetric, only its \(n(n+1)/2\) unique entries need be carried, and its boundedness in \((0,\I]\) makes it a well-conditioned network input despite the augmentation.</p>
@@ -503,14 +503,14 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
 
           <div class="stmt">
             <div class="kind"><b>Proposition 3</b> · Markov restoration</div>
-            <p>Let \(z_t := (x_t, S_t) \in \mathcal{Z} := \mathcal{X}\times\mathcal{S}\), where \(\mathcal{S}\) denotes the symmetric matrices satisfying \(0 \preceq S \preceq \I\). Then the tuple \((\mathcal{Z}, \mathcal{U}, p_z, r)\), with \(r\) as in Equation (7), is a Markov decision process.</p>
-            <p class="proof"><em>Proof.</em> The transition of \(z_t\) factorizes: \(x_{t+1} \sim p(\cdot\mid x_t,u_t)\) is the environment step, and \(S_{t+1}\) in Equation (6) is a deterministic function of \((x_t,u_t,S_t)\) through the state Jacobian \(\fx\). The reward \(r(z_t,u_t)\) depends only on the current augmented state and action. Hence \(z_{t+1}\) and \(r_t\) are determined by \((z_t,u_t)\) alone. <span class="qed">□</span></p>
+            <p>Let \(z_t := (x_t, S_t) \in \mathcal{Z} := \mathcal{X}\times\mathcal{S}\), where \(\mathcal{S}\) denotes the symmetric matrices satisfying \(0 \preceq S \preceq \I\). Then the tuple \((\mathcal{Z}, \mathcal{U}, p_z, r)\), with \(r\) as in Equation (6), is a Markov decision process.</p>
+            <p class="proof"><em>Proof.</em> The transition of \(z_t\) factorizes: \(x_{t+1} \sim p(\cdot\mid x_t,u_t)\) is the environment step, and \(S_{t+1}\) in Equation (5) is a deterministic function of \((x_t,u_t,S_t)\) through the state Jacobian \(\fx\). The reward \(r(z_t,u_t)\) depends only on the current augmented state and action. Hence \(z_{t+1}\) and \(r_t\) are determined by \((z_t,u_t)\) alone. <span class="qed">□</span></p>
           </div>
 
           <div class="stmt">
             <div class="kind"><b>Theorem 4</b> · Exact decomposition of CIP</div>
             <p>In the MDP of Proposition 3, the undiscounted return telescopes, \(\sum_{t=0}^{T-1} r(z_t,u_t) = \ln\det\Sigma_T\), and consequently</p>
-            <div class="eq"><span class="eqno">(8)</span>\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\sum_{t=0}^{T-1} r(z_t,u_t) = h_{\ks}(f^{\ol}). \]</div>
+            <div class="eq"><span class="eqno">(7)</span>\[ \lim_{T\to\infty}\frac{1}{2T\Delta t}\sum_{t=0}^{T-1} r(z_t,u_t) = \Lambda^{+}(f^{\ol}) = \mathrm{CIP}. \]</div>
             <p><em>Maximizing the average reward of the MDP is therefore equivalent to maximizing CIP.</em></p>
             <p class="proof"><em>Proof.</em> By Lemma 2, \(\sum_{t=0}^{T-1} r_t = h_T - h_0 = \ln\det\Sigma_T\). The limit follows from Lemma 1. <span class="qed">□</span></p>
           </div>
@@ -532,8 +532,8 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
             <li><span></span><span class="i3">\(z_t \leftarrow (x_t, S_t)\)</span><span class="ref">Prop. 3</span></li>
             <li><span></span><span class="i3">Take action \(u_t \sim \pi_\theta(\cdot\mid z_t)\)</span><span></span></li>
             <li><span></span><span class="i3">Receive \(x_{t+1}\) and \(\fx\)</span><span></span></li>
-            <li><span></span><span class="i3 hl-reward">\(r_t \leftarrow \ln\det\!\big(S_t + \fx^{\top}\fx\big)\)</span><span class="ref">Eq. (7)</span></li>
-            <li><span></span><span class="i3 hl-memory">\(S_{t+1} \leftarrow \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}\)</span><span class="ref">Eq. (6)</span></li>
+            <li><span></span><span class="i3 hl-reward">\(r_t \leftarrow \ln\det\!\big(S_t + \fx^{\top}\fx\big)\)</span><span class="ref">Eq. (6)</span></li>
+            <li><span></span><span class="i3 hl-memory">\(S_{t+1} \leftarrow \I - \fx\big(S_t + \fx^{\top}\fx\big)^{-1}\fx^{\top}\)</span><span class="ref">Eq. (5)</span></li>
             <li><span></span><span class="i3">\(\hat r_t \leftarrow r_t + \beta\, v_t\)</span><span></span></li>
             <li><span></span><span class="i2"><span class="kw">end for</span></span><span></span></li>
             <li><span></span><span class="i1"><span class="kw">end for</span></span><span></span></li>
@@ -555,20 +555,20 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
     </div>
     <div class="sec-body">
       <div class="lead measure">
-        <p>Our experiments address three questions: <strong>Q1.</strong> Does a learned value function converge to the true KSE on a known attractor? <strong>Q2.</strong> What behaviors are induced by maximizing F-CIP, with no extrinsic reward? <strong>Q3.</strong> Can F-CIP simplify reward engineering on locomotion tasks?</p>
+        <p>Our experiments address three questions: <strong>Q1.</strong> Does a learned value function converge to the true \(\Lambda^{+}\) on a known attractor? <strong>Q2.</strong> What behaviors are induced by maximizing F-CIP, with no extrinsic reward? <strong>Q3.</strong> Can F-CIP simplify reward engineering on locomotion tasks?</p>
       </div>
 
       <!-- Q1 -->
       <div class="full two-col" style="margin-top:2.5rem;">
         <div class="measure">
-          <span class="q-eyebrow">Q1 · KSE Estimation</span>
-          <h3>The learned value function recovers the true KSE of the Lorenz attractor</h3>
-          <p>We validate the convergence of our learned incremental estimator on the Lorenz attractor with a known KSE value of 0.906 nats/s. The KSE is extracted from the learned estimator as \(\frac{1-\gamma}{2\Delta t}\mathbb{E}[V_\phi(z_t)]\), where the prefactor converts the accumulated discounted return into a rate. Here \(V_\phi\) is estimated by TD learning on trajectories sampled from the attractor. Figure 4a demonstrates that the estimator converges to the known value for a range of discount factors \(\gamma\). Setting \(\gamma\) to zero still enables estimation of KSE since that special case corresponds to the value function learning only the instantaneous reward. However, we observe that increasing values of \(\gamma\) result in faster convergence to the true KSE.</p>
+          <span class="q-eyebrow">Q1 · \(\Lambda^{+}\) Estimation</span>
+          <h3>The learned value function recovers the true \(\Lambda^{+}\) of the Lorenz attractor</h3>
+          <p>We validate the convergence of our learned incremental estimator on the Lorenz attractor with a known \(\Lambda^{+}\) value of 0.906 nats/s. The \(\Lambda^{+}\) is extracted from the learned estimator as \(\frac{1-\gamma}{2\Delta t}\mathbb{E}[V_\phi(z_t)]\), where the prefactor converts the accumulated discounted return into a rate. Here \(V_\phi\) is estimated by TD learning on trajectories sampled from the attractor. Figure 3a demonstrates that the estimator converges to the known value for a range of discount factors \(\gamma\). Setting \(\gamma\) to zero still enables estimation of \(\Lambda^{+}\) since that special case corresponds to the value function learning only the instantaneous reward. However, we observe that increasing values of \(\gamma\) result in faster convergence to the true \(\Lambda^{+}\).</p>
           <p>Since the value function learns a discounted summation its output can be interpreted as a local indicator of the "chaos-to-go". The value function attains its largest values near the splitting point between the two attractor wings, where the local dynamics are most unstable and trajectories can diverge towards either wing. This property motivates using the learned value as a local signal of proximity to the EOC.</p>
         </div>
         <figure>
-          <div class="q1-fig"><img src="assets/figures/gamma_convergence.png" alt="Estimated KSE on the Lorenz attractor versus training iteration for discount factors from 0 to 0.9, converging to the true KSE of 0.9056 nats/s; inset shows the attractor colored by the learned value." loading="lazy"></div>
-          <figcaption><span class="figure-num">Figure 4</span><strong>Learning the KSE on the Lorenz attractor.</strong> (a) convergence of the learned value function to the known KSE for a range of \(\gamma\in[0.0, 0.9]\); (b) the attractor colored by the learned \(V_\phi(z)\) for \(\gamma = 0.9\) where bright green indicates higher value.</figcaption>
+          <div class="q1-fig"><img src="assets/figures/gamma_convergence.png" alt="Estimated sum of positive Lyapunov exponents on the Lorenz attractor versus training iteration for discount factors from 0 to 0.9, converging to the true value of 0.9056 nats/s; inset shows the attractor colored by the learned value." loading="lazy"></div>
+          <figcaption><span class="figure-num">Figure 3</span><strong>Learning \(\Lambda^{+}\) on the Lorenz attractor.</strong> (a) convergence of the learned value function to the known \(\Lambda^{+}\) for a range of \(\gamma\in[0.0, 0.9]\); (b) the attractor colored by the learned \(V_\phi(z)\) for \(\gamma = 0.9\) where bright green indicates higher value.</figcaption>
         </figure>
       </div>
 
@@ -577,7 +577,7 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
         <div class="measure">
           <span class="q-eyebrow">Q2 · Emergent Behaviors</span>
           <h3>Maximizing F-CIP alone produces swing-up and upright stabilization</h3>
-          <p>Maximizing F-CIP alone, with no extrinsic reward, produces swing-up and upright stabilization: Figure 2 shows a full swing-up and stabilization trajectory in the gibbon environment. Table 1 quantifies this across all four systems, reporting the normalized height of each system's extremity (i.e. pendulum tip; gibbon head) over the final 10% of the episode, averaged over 10 seeds. All agents start from the hanging pose, so the intrinsic objective alone must drive both swing-up and stabilization. F-CIP is the only objective that reliably reaches the upright configuration on all four systems.</p>
+          <p>Maximizing F-CIP alone, with no extrinsic reward, produces swing-up and upright stabilization: Figure 4 shows a full swing-up and stabilization trajectory in the gibbon environment. Table 1 quantifies this across all four systems, reporting the normalized height of each system's extremity (i.e. pendulum tip; gibbon head) over the final 10% of the episode, averaged over 10 seeds. All agents start from the hanging pose, so the intrinsic objective alone must drive both swing-up and stabilization. F-CIP is the only objective that reliably reaches the upright configuration on all four systems. The skill-based baselines (DIAYN and SMM) are evaluated on their best skill, i.e., the one attaining the highest average height. Since the F-CIP objective is naturally an average-reward quantity, we also train an average-reward PPO variant (APPO), which matches the reliability of standard PPO.</p>
         </div>
         <div class="pure-cip">
           <div class="clip">
@@ -595,7 +595,7 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
             <span class="label">Gibbon — Ours: F-CIP pre-training with no extrinsic reward</span>
             <img src="assets/figures/gibbon-standup.jpg" alt="Time-lapse of the gibbon swinging up from a hanging pose to an upright stand" loading="lazy">
           </div>
-          <figcaption><span class="figure-num">Figure 2</span><strong>Unsupervised standing up behavior via F-CIP maximization.</strong> This behavior is achieved through maximization of F-CIP alone without any extrinsic reward.</figcaption>
+          <figcaption><span class="figure-num">Figure 4</span><strong>Unsupervised standing up behavior via F-CIP maximization.</strong> This behavior is achieved through maximization of F-CIP alone without any extrinsic reward.</figcaption>
         </figure>
         <div class="table-wrap">
           <table>
@@ -604,14 +604,14 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
               <tr><th>System</th><th>F-CIP (PPO)</th><th>F-CIP (APPO)</th><th>DIAYN</th><th>SMM</th><th>ICM</th><th>APT</th></tr>
             </thead>
             <tbody>
-              <tr><td>CP</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.26</td><td>0.68</td><td>0.07</td><td>0.64</td></tr>
-              <tr><td>DP</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.44</td><td>0.06</td><td>0.05</td><td>0.25</td></tr>
-              <tr><td>TP</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.38</td><td>0.14</td><td>0.09</td><td>0.48</td></tr>
-              <tr><td>G</td><td><b>0.98</b></td><td><b>0.99</b></td><td>0.51</td><td>0.52</td><td>0.05</td><td>0.41</td></tr>
+              <tr><td>Cart Pole</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.26</td><td>0.68</td><td>0.07</td><td>0.64</td></tr>
+              <tr><td>Double Pendulum</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.44</td><td>0.06</td><td>0.05</td><td>0.25</td></tr>
+              <tr><td>Triple Pendulum</td><td><b>0.99</b></td><td><b>0.99</b></td><td>0.38</td><td>0.14</td><td>0.09</td><td>0.48</td></tr>
+              <tr><td>Gibbon</td><td><b>0.98</b></td><td><b>0.99</b></td><td>0.51</td><td>0.52</td><td>0.05</td><td>0.41</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="table-cap"><span class="figure-num">Table 1</span><strong>Comparison of IM on pendulum environments.</strong> We report mean extremity height over the final 10% of the episode averaged over 10 random seeds. Values are min-max normalized so that 0.0 corresponds to the initial hanging configuration and 1.0 corresponds to the fully upright pose. The abbreviations CP, DP, TP, and G correspond to cart pole, double pendulum, triple pendulum, and gibbon, respectively. The comparison is not algorithm-matched: F-CIP is optimized with PPO/APPO, whereas the baselines use the reference URLB implementations, which are built on DDPG.</p>
+        <p class="table-cap"><span class="figure-num">Table 1</span><strong>Comparison of IM on pendulum environments.</strong> We report mean extremity height over the final 10% of the episode averaged over 10 random seeds. Values are min-max normalized so that 0.0 corresponds to the initial hanging configuration and 1.0 corresponds to the fully upright pose.</p>
       </div>
 
       <!-- Q3 -->
@@ -620,7 +620,7 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
           <span class="q-eyebrow">Q3 · Reward Simplification</span>
           <h3>CIP supplies the inductive bias that reward engineers otherwise encode by hand</h3>
           <p>Inducing coherent locomotion strategies such as hopping and walking using RL usually requires careful reward engineering. The simplest reward of maximizing forward velocity describes the desired outcome to move forward but imposes no bias on how that should be achieved. Maximizing a forward velocity reward with an RL agent results in degenerate solutions such as "scooting" along the ground (gray rows of Figure 1) rather than adopting an upright gait. The standard remedy is to design a reward to incentivize upright posture, requiring domain knowledge about the robot itself. We show that CIP can supply the inductive bias to maintain an upright posture, eliminating the need for this domain knowledge.</p>
-          <p>Our procedure has two phases (Algorithm 1). We first pre-train the agent for \(T_{\mathrm{pre}}\) steps to maintain a stable and upright posture using the F-CIP reward (Equation (7)). Next, we adapt the pre-trained policy for \(T_{\mathrm{adapt}}\) steps by exposing it to a forward velocity reward weighted by a \(\beta\) parameter, which warms up from zero towards \(\beta_{\max}\) over \(T_{\mathrm{warm}}\) steps. The agent optimizes the combined objective: \(\hat r_t = r_t + \beta v_t\), where \(v_t\) is the forward velocity component. Crucially, our method never optimizes the oracle hand-designed reward; that reward is only used at test time to evaluate task return.</p>
+          <p>Our procedure has two phases (Algorithm 1). We first pre-train the agent for \(T_{\mathrm{pre}}\) steps to maintain a stable and upright posture using the F-CIP reward (Equation (6)). Next, we adapt the pre-trained policy for \(T_{\mathrm{adapt}}\) steps by exposing it to a forward velocity reward weighted by a \(\beta\) parameter, which warms up from zero towards \(\beta_{\max}\) over \(T_{\mathrm{warm}}\) steps. The agent optimizes the combined objective: \(\hat r_t = r_t + \beta v_t\), where \(v_t\) is the forward velocity component. Crucially, our method never optimizes the oracle hand-designed reward; that reward is only used at test time to evaluate task return.</p>
         </div>
 
         <div class="table-wrap">
@@ -630,20 +630,20 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
               <tr><th>Method</th><th>Task Return ↑</th><th>Fwd. Vel. (m/s)</th><th>Height (m)</th><th>Task Return ↑</th><th>Fwd. Vel. (m/s)</th><th>Height (m)</th></tr>
             </thead>
             <tbody>
-              <tr class="ours"><td>Ours</td><td><b>0.39</b> <span class="pm">± 0.38</span></td><td>1.48 <span class="pm">± 0.33</span></td><td>0.73 <span class="pm">± 0.15</span></td><td><b>0.61</b> <span class="pm">± 0.03</span></td><td>4.52 <span class="pm">± 0.22</span></td><td>1.19 <span class="pm">± 0.04</span></td></tr>
-              <tr><td>Fwd. Vel. only</td><td>0.00 <span class="pm">± 0.00</span></td><td>0.77 <span class="pm">± 0.17</span></td><td>0.33 <span class="pm">± 0.03</span></td><td>0.10 <span class="pm">± 0.04</span></td><td>4.41 <span class="pm">± 0.22</span></td><td>0.47 <span class="pm">± 0.10</span></td></tr>
-              <tr><td>ICM<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.19 <span class="pm">± 0.03</span></td><td>0.28 <span class="pm">± 0.02</span></td><td>0.06 <span class="pm">± 0.01</span></td><td>4.10 <span class="pm">± 0.17</span></td><td>0.35 <span class="pm">± 0.03</span></td></tr>
-              <tr><td>APT<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.36 <span class="pm">± 0.06</span></td><td>0.29 <span class="pm">± 0.04</span></td><td>0.10 <span class="pm">± 0.01</span></td><td>4.63 <span class="pm">± 0.18</span></td><td>0.47 <span class="pm">± 0.04</span></td></tr>
-              <tr><td>DIAYN<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.36 <span class="pm">± 0.05</span></td><td>0.28 <span class="pm">± 0.02</span></td><td>0.06 <span class="pm">± 0.01</span></td><td>2.00 <span class="pm">± 0.21</span></td><td>0.43 <span class="pm">± 0.04</span></td></tr>
-              <tr><td>SMM<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.66 <span class="pm">± 0.06</span></td><td>0.22 <span class="pm">± 0.02</span></td><td>0.11 <span class="pm">± 0.02</span></td><td>4.26 <span class="pm">± 0.16</span></td><td>0.51 <span class="pm">± 0.04</span></td></tr>
+              <tr class="ours"><td>Ours</td><td><b>0.39</b> <span class="pm">± 0.38<sup>∗</sup></span></td><td>1.47 <span class="pm">± 0.33</span></td><td>0.73 <span class="pm">± 0.15</span></td><td><b>0.60</b> <span class="pm">± 0.03</span></td><td>4.53 <span class="pm">± 0.11</span></td><td>1.19 <span class="pm">± 0.04</span></td></tr>
+              <tr><td>Fwd. Vel. only</td><td>0.00 <span class="pm">± 0.00</span></td><td>0.77 <span class="pm">± 0.16</span></td><td>0.33 <span class="pm">± 0.03</span></td><td>0.10 <span class="pm">± 0.04</span></td><td>4.41 <span class="pm">± 0.22</span></td><td>0.46 <span class="pm">± 0.10</span></td></tr>
+              <tr><td>ICM<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.52 <span class="pm">± 0.55</span></td><td>0.22 <span class="pm">± 0.05</span></td><td>0.09 <span class="pm">± 0.04</span></td><td>3.85 <span class="pm">± 0.41</span></td><td>0.48 <span class="pm">± 0.12</span></td></tr>
+              <tr><td>APT<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.63 <span class="pm">± 0.29</span></td><td>0.23 <span class="pm">± 0.07</span></td><td>0.10 <span class="pm">± 0.05</span></td><td>3.38 <span class="pm">± 1.14</span></td><td>0.47 <span class="pm">± 0.14</span></td></tr>
+              <tr><td>DIAYN<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.22 <span class="pm">± 0.17</span></td><td>0.29 <span class="pm">± 0.12</span></td><td>0.08 <span class="pm">± 0.03</span></td><td>3.29 <span class="pm">± 0.33</span></td><td>0.42 <span class="pm">± 0.09</span></td></tr>
+              <tr><td>SMM<sup>†</sup></td><td>0.00 <span class="pm">± 0.00</span></td><td>1.12 <span class="pm">± 0.10</span></td><td>0.23 <span class="pm">± 0.04</span></td><td>0.09 <span class="pm">± 0.04</span></td><td>4.53 <span class="pm">± 0.51</span></td><td>0.45 <span class="pm">± 0.10</span></td></tr>
               <tr class="oracle"><td>Full reward (oracle)</td><td>0.52 <span class="pm">± 0.12</span></td><td>1.04 <span class="pm">± 0.23</span></td><td>0.79 <span class="pm">± 0.09</span></td><td>0.78 <span class="pm">± 0.04</span></td><td>6.07 <span class="pm">± 0.33</span></td><td>1.13 <span class="pm">± 0.02</span></td></tr>
             </tbody>
           </table>
         </div>
-        <p class="table-cap"><span class="figure-num">Table 2</span><strong>Reward simplification on Hopper and Walker.</strong> Mean and standard deviation calculated over 10 evaluations of the trained policies. Ours pre-trains with F-CIP alone, then fine-tunes on the forward-velocity reward while continuing to maximize F-CIP (Algorithm 1). Task return is the comparison metric and is measured with the full hand-designed reward; <strong>bold</strong> marks the best performance among the methods. Forward velocity and torso height are reported as diagnostics of the emergent gait. Each pretraining baseline (†) is run in its intended URLB (DDPG) configuration: the intrinsic objective is maximized during pretraining and then replaced by the velocity reward during fine-tuning. In contrast, Ours continues to maximize F-CIP throughout fine-tuning. Ours, Fwd. Vel. only, and Full reward (oracle) are trained with the same PPO implementation, so the Fwd. Vel. only row serves as an algorithm-matched control.</p>
+        <p class="table-cap"><span class="figure-num">Table 2</span><strong>Reward simplification on Hopper and Walker.</strong> Mean and standard deviation calculated over 10 evaluations of the trained policies. Ours pre-trains with F-CIP alone, then fine-tunes on the forward-velocity reward while continuing to maximize F-CIP (Algorithm 1). Task return is the comparison metric and is measured with the full hand-designed reward; <strong>bold</strong> marks the best performance among the methods. Forward velocity and torso height are reported as diagnostics of the emergent gait. Each pretraining baseline (†) is run in its intended configuration: the intrinsic objective is maximized during pretraining and then replaced by the velocity reward during fine-tuning. In contrast, Ours continues to maximize F-CIP throughout fine-tuning. (∗) The high variance on Hopper arises because the oracle reward is zero whenever the torso drops below a fixed height threshold. All 10 seeds hop upright, but some adopt a deeper crouch that falls below this threshold. This strategy allows our policy to hop faster than the oracle (1.47 vs. 1.04 m/s).</p>
 
         <div class="measure" style="margin-top:1.75rem;">
-          <p>Table 2 reports rollout statistics for both tasks. All baselines collapse to scooting: they hold a low torso height and accrue near-zero task return. Our method instead learns to hop and to run (teal rows of Figure 1), maintaining an upright posture and recovering the majority of the oracle's task return despite never observing that reward.</p>
+          <p>Table 2 reports rollout statistics for both tasks. All baselines collapse to scooting: they hold a low torso height and accrue near-zero task return. Our method instead learns to hop and to run (see the teal rows of Figure 1), maintaining an upright posture and recovering the majority of the oracle's task return despite never observing that reward.</p>
           <p>On hopper, the large variance of our task return is an artifact of the oracle metric rather than of the gait: the oracle reward is gated to zero whenever the torso leaves a narrow height band, and while all 10 evaluation seeds hop upright, some hop at heights outside this band and score zero despite a correct gait. Notably, our hopping policy travels ∼40% faster than the oracle policy (1.47 vs. 1.04 m/s), suggesting that the hand-designed height band could be overly restrictive: it penalizes the torso height excursions that fast hopping requires. On walker, our gait falls within the oracle's height band, yielding correspondingly low variance. Its forward velocity is comparable to the fastest baselines, yet ours is the only method besides the oracle to achieve an upright running gait whereas the baselines attain their speed by scooting.</p>
         </div>
       </div>
@@ -660,7 +660,7 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
     </div>
     <div class="sec-body">
       <div class="lead measure">
-        <p>We introduced F-CIP, a practical scheme for maximizing CIP with modern RL. Whereas CIP was previously optimizable only by expensive MPC planners, our exact per-step decomposition makes it compatible with bootstrapped value learning: the learned value function recovers the true KSE of a known chaotic attractor (Q1), maximizing the F-CIP reward alone produces swing-up and upright stabilization where standard IM objectives, in their reference URLB configurations, do not (Q2), and F-CIP pre-training replaces the postural reward engineering that locomotion tasks otherwise require (Q3).</p>
+        <p>We introduced F-CIP, a practical scheme for maximizing CIP with standard RL algorithms. Whereas CIP was previously optimizable only by expensive MPC planners, our exact per-step decomposition makes it compatible with bootstrapped value learning: the learned value function recovers the true \(\Lambda^{+}\) of a known chaotic attractor (Q1), maximizing the F-CIP reward alone produces self-righting and upright stabilization where standard IM objectives do not (Q2), and F-CIP pre-training replaces the postural reward engineering that locomotion tasks otherwise require (Q3).</p>
         <p>These results support a broader position: intrinsic motivation need not be confined to an exploration bonus. Traditionally in continuous control, IM objectives serve almost exclusively as auxiliary signals. This aligns with their underlying design, as principles like coverage and surprise are inherently geared toward exploration. CIP is a different IM signal: because it targets EOC states directly, it produces useful behavior in both roles. As a primary objective it discovers self-righting with no external signal; as an auxiliary term it supplies an inductive bias toward controllable instability that reward engineers otherwise encode by hand.</p>
         <h3>Limitations</h3>
         <p>Our method has three main limitations.</p>
@@ -675,9 +675,13 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
           <p>The memory matrix \(S_t\) grows quadratically in the state dimension. On-policy training requires every parallel environment to carry its own \(S_t\), and off-policy training would require storing it per-transition in a replay buffer, so scaling to high-dimensional robots demands a compressed representation.</p>
         </div>
         <div>
-          <h4>Degenerate maximizers</h4>
-          <p>CIP admits degenerate maximizers, analogous to the noisy-TV problem of curiosity: in the pendulum systems the agent can accumulate reward by spinning freely, and in the hopper by uncontrolled thrashing. Adding joint damping removed these optima in our environments: damping taxes indiscriminate velocity accumulation while leaving configuration-dependent instability rewarded. However, this is an environment-level modification rather than an objective-level one, and a principled resolution remains open.</p>
+          <h4>Undesirable maximizers</h4>
+          <p>CIP admits undesirable maximizers, analogous to the noisy-TV problem of curiosity: in the pendulum systems the agent can accumulate reward by spinning freely, and in the hopper by uncontrolled thrashing. Adding joint damping removed these optima in our environments: damping taxes indiscriminate velocity accumulation while leaving configuration-dependent instability rewarded. However, this is an environment-level modification rather than an objective-level one, and a principled resolution remains open.</p>
         </div>
+      </div>
+      <div class="lead measure" style="margin-top:2rem;">
+        <h3>Future work</h3>
+        <p>Each limitation suggests future work. Jacobians can in principle be extracted from a learned world model: one-step forward models of the kind trained by curiosity methods are differentiable by construction, which would make F-CIP fully learning-based and simulator-agnostic. The \(S_t\) bottleneck can be addressed with feature extractors that respect the symmetric positive-semi-definite structure of the memory, such as SPDNet. Finally, we plan to investigate alternative formulations of CIP to isolate its desirable maximizers via principled restrictions on the agent's control power and velocities.</p>
       </div>
     </div>
   </div>
@@ -692,11 +696,11 @@ footer { border-top: 1px solid var(--line); padding-block: 1.5rem 2.5rem; font-f
     </div>
     <div class="sec-body">
       <div class="lead">
-<pre class="bib">@inproceedings{shah2027bellman,
-  title     = {Bellman Meets Kolmogorov: Unsupervised Reinforcement Learning Through Mastering Chaos},
-  author    = {Shah, Tristan and Chung, Wooyoung and Makarenko, Volodomyr and Wachs, Juan and Tiomkin, Stas},
-  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
-  year      = {2027}
+<pre class="bib">@article{shah2026bellman,
+  title   = {Bellman Meets Lyapunov: Unsupervised Reinforcement Learning via Mastering Chaos},
+  author  = {Shah, Tristan and Chung, Wooyoung and Makarenko, Volodomyr and Wachs, Juan and Tiomkin, Stas},
+  journal = {arXiv preprint arXiv:2610.02012},
+  year    = {2026}
 }</pre>
         <p style="margin-top:1rem; font-size:0.95rem; color:var(--ink-2);">Builds on Controllable Information Production: Shah, T.; and Tiomkin, S. 2026. <a href="https://arxiv.org/abs/2601.22449">arXiv:2601.22449</a>.</p>
       </div>
